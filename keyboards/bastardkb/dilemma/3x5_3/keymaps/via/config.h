@@ -1,6 +1,6 @@
-/*
- * Copyright 2021 Quentin LEBASTARD <qlebastard@gmail.com>
- * Copyright 2022 Charly Delay <charly@codesink.dev> (@0xcharly)
+/**
+ * Copyright 2021 Charly Delay <charly@codesink.dev> (@0xcharly)
+ * Copyright 2023 casuanoob <casuanoob@hotmail.com> (@casuanoob)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,24 +15,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 #pragma once
 
+#ifdef VIA_ENABLE
+/* VIA configuration. */
+#    define DYNAMIC_KEYMAP_LAYER_COUNT 8
+#endif // VIA_ENABLE
 
-#define DIODE_DIRECTION ROW2COL
-
-/* RGB settings. */
-#define RGBLED_NUM 58
-#define RGBLED_SPLIT \
-    { 29, 29 }
-
-/* RGB matrix support. */
-#ifdef RGB_MATRIX_ENABLE
-#    define SPLIT_TRANSPORT_MIRROR
-#    define RGB_MATRIX_LED_COUNT RGBLED_NUM
-#    define RGB_MATRIX_SPLIT RGBLED_SPLIT
-#    define RGB_MATRIX_MAXIMUM_BRIGHTNESS 200
-#    define RGB_MATRIX_DEFAULT_VAL 64
-#    define RGB_DISABLE_WHEN_USB_SUSPENDED
-#    define RGB_MATRIX_KEYPRESSES
-#endif
+/**
+ * \brief Prevent normal rollover on alphas from accidentally triggering mods.
+ *
+ * Ignores key presses that interrupt a mod-tap.  Must-have for Home Row mod.
+ *
+ * Without `IGNORE_MOD_TAP_INTERRUPT`, within `TAPPING_TERM`:
+ *   Mod(a)🠗 e🠗 Mod(a)🠕 e🠕 ➞ Mod+e
+ * With `IGNORE_MOD_TAP_INTERRUPT`, within `TAPPING_TERM`:
+ *   Mod(a)🠗 e🠗 Mod(a)🠕 e🠕 ➞ ae
+ */
+#define IGNORE_MOD_TAP_INTERRUPT
