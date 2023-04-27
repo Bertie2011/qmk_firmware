@@ -1,0 +1,6 @@
+KEY_OVERRIDE_ENABLE = yes
+LTO_ENABLE = yes
+COMBO_ENABLE = yes
+CAPS_WORD_ENABLE = yes
+
+SRC += x_osm.c

@@ -1,0 +1,12 @@
+#pragma once
+
+// Hold Tap
+#define IGNORE_MOD_TAP_INTERRUPT
+#define TAPPING_TERM 250
+#define HOLD_ON_OTHER_KEY_PRESS
+
+// Combos
+#define COMBO_STRICT_TIMER
+#define COMBO_ONLY_FROM_LAYER 0
+#define COMBO_SHOULD_TRIGGER
+#define COMBO_TERM 75
