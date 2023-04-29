@@ -17,6 +17,12 @@
 
 #include QMK_KEYBOARD_H
 #include "x_osm.h"
+#include "x_rgb.h"
+
+void keyboard_post_init_user(void) {
+    x_rgb_set_layer();
+    rgb_matrix_set_speed(48);
+}
 
 bool layer_enabled(uint8_t layer) {
     // (base layer mask | additional layer masks) & requested layer mask
@@ -48,6 +54,9 @@ enum keys {
     CC_LTG_SET,
     CC_CAPS_WORD,
     CC_TOGGLE_BASE,
+    CC_RGB_WHITE,
+    CC_RGB_RAINBOW,
+    CC_RGB_LAYER,
 };
 
 const int LAYER_ALPHA_MASK = (1 << LAYER_CLMKDH);
@@ -101,13 +110,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_Q, KC_W, KC_F, KC_P, KC_B, KC_J, KC_L, KC_U, KC_Y, KC_QUOTE,
         KC_A, KC_R, KC_S, KC_T, KC_G, KC_M, KC_N, KC_E, KC_I, KC_O,
         KC_Z, KC_X, KC_C, KC_D, KC_V, KC_K, KC_H, KC_COMMA, KC_DOT, KC_ENTER,
-        XXXXXXX, CC_LTG_SYM, KC_SPACE, KC_BACKSPACE, OSM(MOD_LSFT), XXXXXXX
+        LGUI(KC_L), CC_LTG_SYM, KC_SPACE, KC_BACKSPACE, OSM(MOD_LSFT), KC_MPLY
     ),
     [LAYER_GAME] = LAYOUT_split_3x5_3(
         KC_TAB, KC_Q, KC_W, KC_E, KC_R, KC_Y, KC_U, KC_I, KC_O, KC_P,
         KC_LSFT, KC_A, KC_S, KC_D, KC_F, KC_H, KC_J, KC_K, KC_L, KC_SEMICOLON,
         KC_LCTL, KC_Z, KC_X, KC_C, KC_V, KC_N, KC_M, KC_COMMA, KC_DOT, KC_SLASH,
-        XXXXXXX, CC_LTG_SYM, KC_SPACE, KC_SPACE, KC_ESC, XXXXXXX
+        LGUI(KC_L), CC_LTG_SYM, KC_SPACE, KC_SPACE, KC_ESC, XXXXXXX
     ),
     [LAYER_NAV_BAR] = LAYOUT_split_3x5_3(
         KC_DEL, _______, _______, _______, _______, _______, _______, _______, _______, _______,
@@ -125,12 +134,12 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, LSFT(KC_BACKSLASH), LSFT(KC_7), LSFT(KC_GRAVE), LSFT(KC_6), KC_PSCR, LSFT(KC_MINUS), KC_SLASH, KC_BACKSLASH, LSFT(KC_SLASH),
         _______, LSFT(KC_8), KC_SEMICOLON, LSFT(KC_QUOTE), LSFT(KC_4), LSFT(KC_2), KC_MINUS, LSFT(KC_LEFT_BRACKET), LSFT(KC_COMMA), KC_LEFT_BRACKET,
         _______, LSFT(KC_3), LSFT(KC_EQUAL), KC_GRAVE, OSM(MOD_LGUI), LSFT(KC_1), KC_EQUAL, LSFT(KC_RIGHT_BRACKET), LSFT(KC_DOT), KC_RIGHT_BRACKET,
-        _______, _______, _______, _______, _______, CC_TOGGLE_BASE
+        KC_SLEP, _______, _______, _______, _______, CC_TOGGLE_BASE
     ),
     [LAYER_SET] = LAYOUT_split_3x5_3(
-        _______, _______, KC_SCRL, _______, _______, KC_INS, KC_F9, KC_F10, KC_F11, KC_F12,
-        _______, _______, _______, _______, _______, _______, KC_F5, KC_F6, KC_F7, KC_F8,
-        _______, _______, _______, _______, _______, _______, KC_F1, KC_F2, KC_F3, KC_F4,
+        KC_INS, _______, RGB_VAI, _______, _______, KC_SCRL, KC_F9, KC_F10, KC_F11, KC_F12,
+        _______, CC_RGB_RAINBOW, CC_RGB_WHITE, CC_RGB_LAYER, _______, _______, KC_F5, KC_F6, KC_F7, KC_F8,
+        _______, _______, RGB_VAD, _______, _______, _______, KC_F1, KC_F2, KC_F3, KC_F4,
         _______, TG(LAYER_SET), TG(LAYER_SET), KC_NUM_LOCK, KC_CAPS_LOCK, _______
     ),
     [LAYER_NAV] = LAYOUT_split_3x5_3(
@@ -146,6 +155,59 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
         _______, _______, _______, _______, _______, _______
+    ),
+    */
+};
+const uint32_t PROGMEM rgbmaps[MAX_LAYER][MATRIX_ROWS][MATRIX_COLS] = {
+    [LAYER_CLMKDH] = LAYOUT_split_3x5_3(
+        OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO,
+        OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO,
+        OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO,
+        OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO
+    ),
+    [LAYER_GAME] = LAYOUT_split_3x5_3(
+        XXXXXXXX, XXXXXXXX, OOOOOOOO, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX,
+        XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX,
+        XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX,
+        XXXXXXXX, XXXXXXXX, OOOOOOOO, OOOOOOOO, XXXXXXXX, XXXXXXXX
+    ),
+    [LAYER_NAV_BAR] = LAYOUT_split_3x5_3(
+        0x81f1ff, ________, ________, ________, ________, ________, ________, ________, ________, ________,
+        0x81f1ff, ________, ________, ________, ________, ________, ________, ________, ________, ________,
+        0x81f1ff, ________, ________, ________, ________, ________, ________, ________, ________, ________,
+        ________, ________, ________, ________, ________, ________
+    ),
+    [LAYER_MODS] = LAYOUT_split_3x5_3(
+        ________, ________, ________, ________, ________, ________, ________, ________, ________, ________,
+        ________, ________, ________, ________, ________, ________, ________, ________, ________, ________,
+        ________, ________, ________, ________, ________, ________, ________, ________, ________, ________,
+        ________, ________, 0xffd14f, 0xffd14f, 0xffd14f, ________
+    ),
+    [LAYER_SYMBOLS] = LAYOUT_split_3x5_3(
+        ________, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO,
+        ________, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO,
+        ________, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO,
+        XXXXXXXX, 0x4f4dff, ________, ________, ________, XXXXXXXX
+    ),
+    [LAYER_SET] = LAYOUT_split_3x5_3(
+        XXXXXXXX, XXXXXXXX, 0xffffff, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX,
+        XXXXXXXX, 0xff17ce, 0xffffff, 0x81f1ff, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX,
+        XXXXXXXX, XXXXXXXX, 0x444444, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX,
+        XXXXXXXX, 0x4f4dff, 0x4f4dff, 0xe4a900, 0xe4a900, XXXXXXXX
+    ),
+    [LAYER_NAV] = LAYOUT_split_3x5_3(
+        XXXXXXXX, XXXXXXXX, OOOOOOOO, XXXXXXXX, XXXXXXXX, XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, XXXXXXXX,
+        XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, XXXXXXXX, XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO,
+        XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, XXXXXXXX,
+        _______, _______, _______, _______, _______, _______
+    )
+
+    /*
+    [EMPTY] = LAYOUT_split_3x5_3(
+        ________, ________, ________, ________, ________, ________, ________, ________, ________, ________,
+        ________, ________, ________, ________, ________, ________, ________, ________, ________, ________,
+        ________, ________, ________, ________, ________, ________, ________, ________, ________, ________,
+        ________, ________, ________, ________, ________, ________
     ),
     */
 };
@@ -173,6 +235,31 @@ bool caps_word_press_user(uint16_t keycode) {
     }
 }
 
+bool encoder_update_user(uint8_t index, bool clockwise) {
+    if (layer_enabled(LAYER_SYMBOLS)) {
+        switch (index) {
+            case 0: // Left-half encoder
+                register_mods(MOD_BIT(KC_RALT));
+                tap_code16(clockwise ? KC_TAB : LSFT(KC_TAB));
+                break;
+            case 1: // Right-half encoder
+                layer_clear();
+                tap_code16(clockwise ? KC_MNXT : KC_MPRV);
+                break;
+        }
+    } else {
+        switch (index) {
+            case 0: // Left-half encoder
+                tap_code16(clockwise ? LCTL(KC_TAB) : S(C(KC_TAB)));
+                break;
+            case 1: // Right-half encoder
+                tap_code16(clockwise ? KC_AUDIO_VOL_UP : KC_AUDIO_VOL_DOWN);
+                break;
+        }
+    }
+    return false;
+}
+
 // In the left->right, top->bottom direction.
 // The left hand has cols 0->4, rows 0->3. The right hand has cols 4->0, rows 4->7.
 // The thumb keys (outer->inner) have indexes 2, 0, 1
@@ -188,6 +275,18 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         return false;
     }
 
+    // RGB switching
+    if (pressed && keycode == CC_RGB_RAINBOW) {
+        x_rgb_set_cycle_left_right();
+        return false;
+    } else if (pressed && keycode == CC_RGB_WHITE) {
+        x_rgb_set_white();
+        return false;
+    } else if (pressed && keycode == CC_RGB_LAYER) {
+        x_rgb_set_layer();
+        return false;
+    }
+
     // LAYER SWITCHING
     bool releaseBeforePress = row % 4 == 3 && keycode != OSM(MOD_LSFT); // thumb buttons, except shift
     bool releaseAfterPress = keycode == KC_ENTER;
@@ -195,8 +294,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         layer_off(LAYER_NAV);
     }
 
-    releaseBeforePress = row % 4 == 3 || (row < 3 && col == 0);
+    releaseBeforePress = (row % 4 == 3 && col < 2) || (row < 3 && col == 0);
     if (layer_enabled(LAYER_SYMBOLS) && keycode != CC_LTG_SYM && pressed == releaseBeforePress) {
+        unregister_mods(MOD_BIT(KC_RALT));
         layer_off(LAYER_SYMBOLS);
     }
     releaseBeforePress = col != 0 || row >= 3; // Not in the left outer column
@@ -204,12 +304,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (layer_enabled(LAYER_NAV_BAR) && keycode != CC_LTG_SYM && ((pressed && releaseBeforePress) || (!pressed && releaseAfterPress))) {
         layer_off(LAYER_NAV_BAR);
     }
-    if (layer_enabled(LAYER_MODS) && keycode != CC_LTG_SYM && pressed && (row % 4 != 3)) { // Not on the thumb keys
+    if (layer_enabled(LAYER_MODS) && keycode != CC_LTG_SYM && pressed && !(row % 4 == 3 && col < 2)) { // Not on the thumb keys
         layer_off(LAYER_MODS);
     }
 
     if (pressed && keycode == CC_LTG_SYM) {
-        if (layer_mask_enabled_any(LAYER_SYM_MASK)) layer_and(~LAYER_SYM_MASK);
+        if (layer_mask_enabled_any(LAYER_SYM_MASK)) {
+            unregister_mods(MOD_BIT(KC_RALT));
+            layer_and(~LAYER_SYM_MASK);
+        }
         else layer_or(LAYER_SYM_MASK);
         return false;
     }

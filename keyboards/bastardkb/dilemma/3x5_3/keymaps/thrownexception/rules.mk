@@ -2,5 +2,8 @@ KEY_OVERRIDE_ENABLE = yes
 LTO_ENABLE = yes
 COMBO_ENABLE = yes
 CAPS_WORD_ENABLE = yes
+RGB_MATRIX_CUSTOM_USER = yes
+CONSOLE_ENABLE = no
 
 SRC += x_osm.c
+SRC += x_rgb.c
