@@ -46,7 +46,8 @@ enum dilemma_keymap_layers {
     LAYER_NAV_BAR,
     LAYER_MODS,
     LAYER_SET,
-    LAYER_NAV
+    LAYER_NAV,
+    LAYER_MOUSE
 };
 enum keys {
     CC_LTG_SYM = SAFE_RANGE,
@@ -147,7 +148,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_TAB, KC_LEFT, KC_DOWN, KC_RIGHT, LSFT(KC_4), KC_LCTL, KC_4, KC_5, KC_6, KC_0,
         KC_ESC, LCTL(KC_X), LCTL(KC_C), LCTL(KC_V), LSFT(KC_5), KC_LSFT, KC_1, KC_2, KC_3, KC_ENTER,
         _______, _______, _______, _______, _______, _______
-    )
+    ),
+    [LAYER_MOUSE] = LAYOUT_split_3x5_3(
+        KC_DEL, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+        KC_TAB, KC_LALT, KC_LSFT, KC_LCTL, KC_LGUI, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+        KC_ESC, LCTL(KC_X), LCTL(KC_C), LCTL(KC_V), XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+        _______, KC_MS_BTN2, KC_MS_BTN1, XXXXXXX, XXXXXXX, _______
+    ),
 
     /*
     [EMPTY] = LAYOUT_split_3x5_3(
@@ -199,8 +206,14 @@ const uint32_t PROGMEM rgbmaps[MAX_LAYER][MATRIX_ROWS][MATRIX_COLS] = {
         XXXXXXXX, XXXXXXXX, OOOOOOOO, XXXXXXXX, XXXXXXXX, XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, XXXXXXXX,
         XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, XXXXXXXX, XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO,
         XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, XXXXXXXX,
-        _______, _______, _______, _______, _______, _______
-    )
+        ________, ________, ________, ________, ________, ________
+    ),
+    [LAYER_MOUSE] = LAYOUT_split_3x5_3(
+        XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX,
+        XXXXXXXX, 0xffd14f, 0xffd14f, 0xffd14f, 0xffd14f, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX,
+        XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX,
+        XXXXXXXX, OOOOOOOO, OOOOOOOO, XXXXXXXX, XXXXXXXX, XXXXXXXX
+    ),
 
     /*
     [EMPTY] = LAYOUT_split_3x5_3(
@@ -334,4 +347,23 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         else if (layer_enabled(LAYER_GAME)) default_layer_set(1 << LAYER_CLMKDH);
     }
     return true;
+}
+
+static uint16_t mouse_timer;
+static report_mouse_t current_mouse_report;
+
+report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
+    if (has_mouse_report_changed(&mouse_report, &current_mouse_report)) {
+        layer_on(LAYER_MOUSE);
+        mouse_timer = timer_read();
+    }
+    current_mouse_report = pointing_device_get_report();
+    return mouse_report;
+}
+
+void housekeeping_task_user(void) {
+    if (mouse_timer != 0 && timer_elapsed(mouse_timer) > 1000) {
+        layer_off(LAYER_MOUSE);
+        mouse_timer = 0;
+    }
 }
