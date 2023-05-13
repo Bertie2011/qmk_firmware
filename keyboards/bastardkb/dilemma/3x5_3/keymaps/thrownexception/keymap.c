@@ -18,10 +18,20 @@
 #include QMK_KEYBOARD_H
 #include "x_osm.h"
 #include "x_rgb.h"
+#include <transactions.h>
+
+typedef struct { } transaction_pointer_down_request;
+typedef struct { bool is_down; } transaction_pointer_down_response;
+void get_pointer_is_down_handler(uint8_t in_buflen, const void* in_data, uint8_t out_buflen, void* out_data) {
+    report_mouse_t fake = { .x = 0, .y = 0, .v = 0, .h = 0 };
+    transaction_pointer_down_response *s2m = (transaction_pointer_down_response*)out_data;
+    s2m->is_down = auto_mouse_activation(fake);
+}
 
 void keyboard_post_init_user(void) {
     x_rgb_set_layer();
     rgb_matrix_set_speed(48);
+    transaction_register_rpc(GET_POINTER_IS_DOWN, get_pointer_is_down_handler);
 }
 
 bool layer_enabled(uint8_t layer) {
@@ -141,7 +151,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_INS, _______, RGB_VAI, _______, _______, KC_SCRL, KC_F9, KC_F10, KC_F11, KC_F12,
         _______, CC_RGB_RAINBOW, CC_RGB_WHITE, CC_RGB_LAYER, _______, _______, KC_F5, KC_F6, KC_F7, KC_F8,
         _______, _______, RGB_VAD, _______, _______, _______, KC_F1, KC_F2, KC_F3, KC_F4,
-        _______, TG(LAYER_SET), TG(LAYER_SET), KC_NUM_LOCK, KC_CAPS_LOCK, _______
+        _______, XXXXXXX, XXXXXXX, KC_NUM_LOCK, KC_CAPS_LOCK, _______
     ),
     [LAYER_NAV] = LAYOUT_split_3x5_3(
         KC_DEL, KC_HOME, KC_UP, KC_END, LCA(KC_5), KC_LALT, KC_7, KC_8, KC_9, KC_DOT,
@@ -199,19 +209,19 @@ const uint32_t PROGMEM rgbmaps[MAX_LAYER][MATRIX_ROWS][MATRIX_COLS] = {
     [LAYER_SET] = LAYOUT_split_3x5_3(
         XXXXXXXX, XXXXXXXX, 0xffffff, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX,
         XXXXXXXX, 0xff17ce, 0xffffff, 0x81f1ff, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX,
-        XXXXXXXX, XXXXXXXX, 0x444444, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX,
-        XXXXXXXX, 0x4f4dff, 0x4f4dff, 0xe4a900, 0xe4a900, XXXXXXXX
+        XXXXXXXX, XXXXXXXX, 0x666666, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX,
+        XXXXXXXX, 0x4f4dff, 0x4f4dff, 0xffc111, 0xffc111, XXXXXXXX
     ),
     [LAYER_NAV] = LAYOUT_split_3x5_3(
         XXXXXXXX, XXXXXXXX, OOOOOOOO, XXXXXXXX, XXXXXXXX, XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, XXXXXXXX,
         XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, XXXXXXXX, XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO,
         XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, XXXXXXXX,
-        ________, ________, ________, ________, ________, ________
+        XXXXXXXX, ________, ________, ________, 0x4f4dff, XXXXXXXX
     ),
     [LAYER_MOUSE] = LAYOUT_split_3x5_3(
-        XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX,
-        XXXXXXXX, 0xffd14f, 0xffd14f, 0xffd14f, 0xffd14f, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX,
-        XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX,
+        0x666666, 0x666666, 0x666666, 0x666666, 0x666666, 0x666666, 0x666666, 0x666666, 0x666666, 0x666666,
+        0x666666, 0xffd14f, 0xffd14f, 0xffd14f, 0xffd14f, 0x666666, 0x666666, 0x666666, 0x666666, 0x666666,
+        0x666666, 0x666666, 0x666666, 0x666666, 0x666666, 0x666666, 0x666666, 0x666666, 0x666666, 0x666666,
         XXXXXXXX, OOOOOOOO, OOOOOOOO, XXXXXXXX, XXXXXXXX, XXXXXXXX
     ),
 
@@ -320,6 +330,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (layer_enabled(LAYER_MODS) && keycode != CC_LTG_SYM && pressed && !(row % 4 == 3 && col < 2)) { // Not on the thumb keys
         layer_off(LAYER_MODS);
     }
+    if (layer_enabled(LAYER_SET) && !pressed && row % 4 == 3) {
+        layer_off(LAYER_SET);
+    }
 
     if (pressed && keycode == CC_LTG_SYM) {
         if (layer_mask_enabled_any(LAYER_SYM_MASK)) {
@@ -349,21 +362,43 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return true;
 }
 
-static uint16_t mouse_timer;
-static report_mouse_t current_mouse_report;
+uint32_t x_rgb_get_default_color_user(led_data* data) {
+    if (layer_enabled(LAYER_MOUSE)) return 0x444444;
+    if (layer_enabled(LAYER_NAV)) return 0x5b00cc;
+    if (layer_mask_enabled_any(LAYER_SYM_MASK)) return 0x008a74;
+    return 0x0b0bff;
+}
+uint32_t x_rgb_get_override_color_user(led_data* data) {
+    led_t state = host_keyboard_led_state();
+    uint8_t mods = get_oneshot_mods() | get_oneshot_locked_mods() | get_mods();
 
-report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
-    if (has_mouse_report_changed(&mouse_report, &current_mouse_report)) {
-        layer_on(LAYER_MOUSE);
-        mouse_timer = timer_read();
-    }
-    current_mouse_report = pointing_device_get_report();
-    return mouse_report;
+    if (data->row == 3 && data->col == 1 && (mods & MOD_MASK_ALT) != 0) return 0xffc111;
+    if (data->row == 7 && data->col == 1 && (mods & MOD_MASK_CTRL) != 0) return 0xffc111;
+    if (data->row == 7 && data->col == 0 && (mods & MOD_MASK_SHIFT) != 0) return 0xffc111;
+
+    if (data->row == 7 && data->col == 1 && !state.num_lock) return 0xff9e12;
+    if (data->row == 7 && data->col == 0 && (state.caps_lock || is_caps_word_on())) return 0xff9e12;
+
+    return ________;
 }
 
-void housekeeping_task_user(void) {
-    if (mouse_timer != 0 && timer_elapsed(mouse_timer) > 1000) {
-        layer_off(LAYER_MOUSE);
-        mouse_timer = 0;
+bool current_pointer_is_down = false;
+report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
+    bool pointer_is_down = auto_mouse_activation(mouse_report);
+
+    if (current_pointer_is_down && !pointer_is_down && is_keyboard_left()) {
+        // If we are about to toggle pointer_is_down to false on the left side, request trackpad driver status from the right side.
+        // Only the right side knows about is_touch_down driver status, the left side only has movement info which is not enough.
+        transaction_pointer_down_request m2s;
+        transaction_pointer_down_response s2m = { false };
+        if (transaction_rpc_exec(GET_POINTER_IS_DOWN, sizeof(m2s), &m2s, sizeof(s2m), &s2m)) {
+            pointer_is_down = s2m.is_down;
+        }
     }
+    if (pointer_is_down == current_pointer_is_down) return mouse_report;
+    current_pointer_is_down = pointer_is_down;
+
+    if (pointer_is_down) layer_on(LAYER_MOUSE);
+    else layer_off(LAYER_MOUSE);
+    return mouse_report;
 }
