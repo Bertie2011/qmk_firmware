@@ -128,22 +128,22 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         XXXXXXX, KC_SPACE, CC_LTG_SYM, KC_ESC, KC_SPACE, XXXXXXX
     ),
     [LAYER_NAV_BAR] = LAYOUT_split_3x5_3(
-        KC_DEL, _______, _______, _______, _______, _______, _______, _______, _______, _______,
-        KC_TAB, _______, _______, _______, _______, _______, _______, _______, _______, _______,
         KC_ESC, _______, _______, _______, _______, _______, _______, _______, _______, _______,
-        _______, _______, _______, _______, _______, _______
+        KC_TAB, _______, _______, _______, _______, _______, _______, _______, _______, _______,
+        KC_DEL, _______, _______, _______, _______, _______, _______, _______, _______, _______,
+        _______, CC_LTG_SYM, _______, _______, _______, _______
     ),
     [LAYER_MODS] = LAYOUT_split_3x5_3(
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
-        _______, OSM(MOD_LCTL), _______, OSM(MOD_LSFT), OSM(MOD_LALT), _______
+        _______, CC_LTG_SYM, OSM(MOD_LCTL), OSM(MOD_LSFT), OSM(MOD_LALT), _______
     ),
     [LAYER_SYMBOLS] = LAYOUT_split_3x5_3(
         _______, LSFT(KC_BACKSLASH), LSFT(KC_7), LSFT(KC_GRAVE), LSFT(KC_6), KC_PSCR, LSFT(KC_MINUS), KC_SLASH, KC_BACKSLASH, LSFT(KC_SLASH),
         _______, LSFT(KC_8), KC_SEMICOLON, LSFT(KC_QUOTE), LSFT(KC_4), LSFT(KC_2), KC_MINUS, LSFT(KC_LEFT_BRACKET), LSFT(KC_COMMA), KC_LEFT_BRACKET,
         _______, LSFT(KC_3), LSFT(KC_EQUAL), KC_GRAVE, OSM(MOD_LGUI), LSFT(KC_1), KC_EQUAL, LSFT(KC_RIGHT_BRACKET), LSFT(KC_DOT), KC_RIGHT_BRACKET,
-        LGUI(KC_L), _______, _______, _______, _______, CC_TOGGLE_BASE
+        LGUI(KC_L), CC_LTG_SYM, _______, _______, _______, CC_TOGGLE_BASE
     ),
     [LAYER_SET] = LAYOUT_split_3x5_3(
         KC_INS, _______, RGB_VAI, _______, _______, KC_SCRL, KC_F9, KC_F10, KC_F11, KC_F12,
@@ -190,19 +190,19 @@ const uint32_t PROGMEM rgbmaps[MAX_LAYER][MATRIX_ROWS][MATRIX_COLS] = {
         0x81f1ff, ________, ________, ________, ________, ________, ________, ________, ________, ________,
         0x81f1ff, ________, ________, ________, ________, ________, ________, ________, ________, ________,
         0x81f1ff, ________, ________, ________, ________, ________, ________, ________, ________, ________,
-        ________, ________, ________, ________, ________, ________
+        ________, 0x4f4dff, ________, ________, ________, ________
     ),
     [LAYER_MODS] = LAYOUT_split_3x5_3(
         ________, ________, ________, ________, ________, ________, ________, ________, ________, ________,
         ________, ________, ________, ________, ________, ________, ________, ________, ________, ________,
         ________, ________, ________, ________, ________, ________, ________, ________, ________, ________,
-        ________, 0xffd14f, ________, 0xffd14f, 0xffd14f, ________
+        ________, 0x4f4dff, 0xffd14f, 0xffd14f, 0xffd14f, ________
     ),
     [LAYER_SYMBOLS] = LAYOUT_split_3x5_3(
         ________, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO,
         ________, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO,
         ________, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO,
-        XXXXXXXX, ________, 0x4f4dff, ________, ________, XXXXXXXX
+        XXXXXXXX, 0x4f4dff, ________, ________, ________, XXXXXXXX
     ),
     [LAYER_SET] = LAYOUT_split_3x5_3(
         XXXXXXXX, XXXXXXXX, 0xffffff, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX,
@@ -321,7 +321,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (layer_enabled(LAYER_NAV_BAR) && keycode != CC_LTG_SYM && ((pressed && releaseBeforePress) || (!pressed && releaseAfterPress))) {
         layer_off(LAYER_NAV_BAR);
     }
-    if (layer_enabled(LAYER_MODS) && keycode != CC_LTG_SYM && pressed && !(row % 4 == 3 && col < 2)) { // Not on the thumb keys
+    if (layer_enabled(LAYER_MODS) && keycode != CC_LTG_SYM && pressed && !(row == 3 && col == 1) && !(row == 7 && col <= 1)) { // Not a modifier key
         layer_off(LAYER_MODS);
     }
     if (layer_enabled(LAYER_SET) && !pressed && row % 4 == 3) {
@@ -365,7 +365,7 @@ uint32_t x_rgb_get_override_color_user(led_data* data) {
     led_t state = host_keyboard_led_state();
     uint8_t mods = get_oneshot_mods() | get_oneshot_locked_mods() | get_mods();
 
-    if (data->row == 3 && data->col == 0 && (mods & MOD_MASK_CTRL) != 0) return 0xffc111;
+    if (data->row == 3 && data->col == 1 && (mods & MOD_MASK_CTRL) != 0) return 0xffc111;
     if (data->row == 7 && data->col == 1 && (mods & MOD_MASK_SHIFT) != 0) return 0xffc111;
     if (data->row == 7 && data->col == 0 && (mods & MOD_MASK_ALT) != 0) return 0xffc111;
 
