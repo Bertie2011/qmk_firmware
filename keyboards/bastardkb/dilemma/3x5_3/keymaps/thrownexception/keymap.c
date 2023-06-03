@@ -152,9 +152,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_NUM_LOCK, XXXXXXX, XXXXXXX, KC_CAPS_LOCK, XXXXXXX, _______
     ),
     [LAYER_NAV] = LAYOUT_split_3x5_3(
-        KC_DEL, KC_HOME, KC_UP, KC_END, LCA(KC_5), KC_LALT, KC_7, KC_8, KC_9, KC_DOT,
-        KC_TAB, KC_LEFT, KC_DOWN, KC_RIGHT, LSFT(KC_4), KC_LCTL, KC_4, KC_5, KC_6, KC_0,
-        KC_ESC, LCTL(KC_X), LCTL(KC_C), LCTL(KC_V), LSFT(KC_5), KC_LSFT, KC_1, KC_2, KC_3, KC_ENTER,
+        KC_LALT, KC_HOME, KC_UP, KC_END, KC_ESC, LCA(KC_5), KC_7, KC_8, KC_9, KC_DOT,
+        KC_LSFT, KC_LEFT, KC_DOWN, KC_RIGHT, KC_TAB, LSFT(KC_4), KC_4, KC_5, KC_6, KC_0,
+        KC_LCTL, LCTL(KC_X), LCTL(KC_C), LCTL(KC_V), KC_DEL, LSFT(KC_5), KC_1, KC_2, KC_3, KC_ENTER,
         _______, _______, _______, _______, _______, _______
     ),
     [LAYER_MOUSE] = LAYOUT_split_3x5_3(
@@ -211,9 +211,9 @@ const uint32_t PROGMEM rgbmaps[MAX_LAYER][MATRIX_ROWS][MATRIX_COLS] = {
         0xffc111, 0x4f4dff, XXXXXXXX, 0xffc111, 0x4f4dff, XXXXXXXX
     ),
     [LAYER_NAV] = LAYOUT_split_3x5_3(
-        XXXXXXXX, XXXXXXXX, OOOOOOOO, XXXXXXXX, XXXXXXXX, XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, XXXXXXXX,
-        XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, XXXXXXXX, XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO,
-        XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, XXXXXXXX,
+        0xffd14f, XXXXXXXX, OOOOOOOO, XXXXXXXX, 0x81f1ff, XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, XXXXXXXX,
+        0xffd14f, OOOOOOOO, OOOOOOOO, OOOOOOOO, 0x81f1ff, XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO,
+        0xffd14f, XXXXXXXX, XXXXXXXX, XXXXXXXX, 0x81f1ff, XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, XXXXXXXX,
         0x4f4dff, ________, ________, ________, ________, XXXXXXXX
     ),
     [LAYER_MOUSE] = LAYOUT_split_3x5_3(
@@ -330,6 +330,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     if (pressed && keycode == CC_LTG_SYM) {
         if (layer_mask_enabled_any(LAYER_SYM_MASK)) {
+            x_osm_clear();
             layer_and(~LAYER_SYM_MASK);
         }
         else layer_or(LAYER_SYM_MASK);
