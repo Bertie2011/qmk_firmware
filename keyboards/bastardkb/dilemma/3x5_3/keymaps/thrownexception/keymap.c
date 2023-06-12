@@ -375,7 +375,7 @@ uint32_t x_rgb_get_override_color_user(led_data* data) {
     if (data->row == 3 && data->col == 2 && !state.num_lock) return 0xff9e12;
     if (data->row == 7 && data->col == 1 && (state.caps_lock || is_caps_word_on())) return 0xff9e12;
 
-    if (layer_enabled(LAYER_MODS)) {
+    if (layer_enabled(LAYER_MODS) || layer_state == 0) {
         if (data->row == 3 && data->col == 1 && (mods & MOD_MASK_CTRL) != 0) return 0xffc111;
         if (data->row == 7 && data->col == 0 && (mods & MOD_MASK_ALT) != 0) return 0xffc111;
     } else if (layer_enabled(LAYER_NAV)) {
