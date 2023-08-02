@@ -44,6 +44,10 @@ bool layer_mask_enabled_any(uint8_t layer_mask) {
     return (((default_layer_state == 0 ? 1 : default_layer_state) | layer_state) & layer_mask) != 0;
 }
 
+bool layer_mask_enabled_all(uint8_t layer_mask) {
+    return (((default_layer_state == 0 ? 1 : default_layer_state) | layer_state) & layer_mask) == layer_mask;
+}
+
 bool any_layer_enabled(uint8_t layer1, uint8_t layer2) {
     return layer_enabled(layer1) || layer_enabled(layer2);
 }
@@ -62,7 +66,6 @@ enum dilemma_keymap_layers {
 enum keys {
     CC_LTG_SYM = SAFE_RANGE,
     CC_LTG_NAV,
-    CC_LTG_SET,
     CC_CAPS_WORD,
     CC_TOGGLE_BASE,
     CC_RGB_WHITE,
@@ -79,7 +82,6 @@ const key_override_t shift_dot_parenthesis_close = {.layers = LAYER_ALPHA_MASK, 
 const key_override_t shift_quote_colon = {.layers = LAYER_ALPHA_MASK, .trigger_mods = MOD_MASK_SHIFT, .negative_mod_mask = (uint8_t) ~MOD_MASK_SHIFT, .trigger = KC_QUOTE, .suppressed_mods = (uint8_t) 0, .replacement = KC_SEMICOLON, .options = ko_options_default, .custom_action = NULL, .context = NULL, .enabled = NULL };
 
 const key_override_t shift_lock_sleep = {.layers = (1 << LAYER_SYMBOLS), .trigger_mods = MOD_MASK_SHIFT, .negative_mod_mask = (uint8_t) ~MOD_MASK_SHIFT, .trigger = LGUI(KC_L), .suppressed_mods = (uint8_t) MOD_MASK_SHIFT, .replacement = KC_SLEP, .options = ko_options_default, .custom_action = NULL, .context = NULL, .enabled = NULL };
-const key_override_t shift_space_enter = {.layers = ~(1 << LAYER_GAME), .trigger_mods = MOD_MASK_SHIFT, .negative_mod_mask = (uint8_t) 0, .trigger = KC_SPACE, .suppressed_mods = (uint8_t) MOD_MASK_SHIFT, .replacement = KC_ENTER, .options = ko_options_default, .custom_action = NULL, .context = NULL, .enabled = NULL };
 
 const key_override_t shift_six_dash = {.layers = (1 << LAYER_NAV), .trigger_mods = MOD_MASK_SHIFT, .negative_mod_mask = (uint8_t) ~MOD_MASK_SHIFT, .trigger = KC_6, .suppressed_mods = (uint8_t) 0, .replacement = KC_MINUS, .options = ko_options_default, .custom_action = NULL, .context = NULL, .enabled = NULL };
 const key_override_t shift_nine_comma = {.layers = (1 << LAYER_NAV), .trigger_mods = MOD_MASK_SHIFT, .negative_mod_mask = (uint8_t) ~MOD_MASK_SHIFT, .trigger = KC_9, .suppressed_mods = (uint8_t) MOD_MASK_SHIFT, .replacement = KC_COMMA, .options = ko_options_default, .custom_action = NULL, .context = NULL, .enabled = NULL };
@@ -87,27 +89,27 @@ const key_override_t shift_dot_colon = {.layers = (1 << LAYER_NAV), .trigger_mod
 const key_override_t shift_zero_minus = {.layers = (1 << LAYER_NAV), .trigger_mods = MOD_MASK_SHIFT, .negative_mod_mask = (uint8_t) ~MOD_MASK_SHIFT, .trigger = KC_0, .suppressed_mods = (uint8_t) MOD_MASK_SHIFT, .replacement = KC_MINUS, .options = ko_options_default, .custom_action = NULL, .context = NULL, .enabled = NULL };
 
 const key_override_t **key_overrides = (const key_override_t *[]) {
-    &shift_comma_parenthesis_open, &shift_dot_parenthesis_close, &shift_quote_colon, &shift_space_enter, &shift_lock_sleep, &shift_six_dash, &shift_nine_comma, &shift_dot_colon, &shift_zero_minus, NULL
+    &shift_comma_parenthesis_open, &shift_dot_parenthesis_close, &shift_quote_colon, &shift_lock_sleep, &shift_six_dash, &shift_nine_comma, &shift_dot_colon, &shift_zero_minus, NULL
 };
 
 // ====================== COMBOS ===========================
 enum combos {
-    COMBO_SET,
     COMBO_CAPS_WORD,
+    COMBO_ENTER,
     COMBO_LENGTH
 };
 uint16_t COMBO_LEN = COMBO_LENGTH;
-const uint16_t PROGMEM combo_keys_set[] = {KC_G, KC_M, COMBO_END}; // Control + dollar sign
-const uint16_t PROGMEM combo_keys_caps_word[] = {KC_BACKSPACE, KC_SPACE, COMBO_END};
+const uint16_t PROGMEM combo_keys_caps_word[] = {CC_LTG_SYM, OSM(MOD_LSFT), COMBO_END};
+const uint16_t PROGMEM combo_keys_enter[] = {KC_BACKSPACE, KC_SPACE, COMBO_END};
 combo_t key_combos[] = {
-    [COMBO_SET] = COMBO(combo_keys_set, CC_LTG_SET),
     [COMBO_CAPS_WORD] = COMBO(combo_keys_caps_word, CC_CAPS_WORD),
+    [COMBO_ENTER] = COMBO(combo_keys_enter, KC_ENTER),
 };
 
 bool combo_should_trigger(uint16_t combo_index, combo_t *combo, uint16_t keycode, keyrecord_t *record) {
     switch (combo_index) {
-        case COMBO_SET: return layer_enabled(LAYER_NAV);
         case COMBO_CAPS_WORD: return layer_state == 0;
+        case COMBO_ENTER: return !layer_enabled(LAYER_MODS);
         default: return true;
     }
 }
@@ -120,13 +122,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_Q, KC_W, KC_F, KC_P, KC_B, KC_J, KC_L, KC_U, KC_Y, KC_QUOTE,
         KC_A, KC_R, KC_S, KC_T, KC_G, KC_M, KC_N, KC_E, KC_I, KC_O,
         KC_Z, KC_X, KC_C, KC_D, KC_V, KC_K, KC_H, KC_COMMA, KC_DOT, CC_LTG_NAV,
-        XXXXXXX, KC_SPACE, CC_LTG_SYM, OSM(MOD_LSFT), KC_BACKSPACE, KC_MPLY
+        XXXXXXX, KC_SPACE, CC_LTG_SYM, OSM(MOD_LSFT), KC_BACKSPACE, OSL(LAYER_SET)
     ),
     [LAYER_GAME] = LAYOUT_split_3x5_3(
         KC_TAB, KC_Q, KC_W, KC_E, KC_R, KC_Y, KC_U, KC_I, KC_O, KC_P,
         KC_LSFT, KC_A, KC_S, KC_D, KC_F, KC_H, KC_J, KC_K, KC_L, KC_SEMICOLON,
         KC_LCTL, KC_Z, KC_X, KC_C, KC_V, KC_N, KC_M, KC_COMMA, KC_DOT, KC_SLASH,
-        XXXXXXX, KC_SPACE, CC_LTG_SYM, KC_ESC, KC_SPACE, XXXXXXX
+        XXXXXXX, KC_SPACE, CC_LTG_SYM, KC_ESC, KC_SPACE, OSL(LAYER_SET)
     ),
     [LAYER_NAV_BAR] = LAYOUT_split_3x5_3(
         KC_ESC, _______, _______, _______, _______, _______, _______, _______, _______, _______,
@@ -147,10 +149,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         LGUI(KC_L), KC_SPACE, _______, _______, _______, CC_TOGGLE_BASE
     ),
     [LAYER_SET] = LAYOUT_split_3x5_3(
-        KC_INS, _______, RGB_VAI, _______, _______, KC_SCRL, KC_F9, KC_F10, KC_F11, KC_F12,
-        _______, CC_RGB_RAINBOW, CC_RGB_WHITE, CC_RGB_LAYER, _______, _______, KC_F5, KC_F6, KC_F7, KC_F8,
-        _______, _______, RGB_VAD, _______, _______, _______, KC_F1, KC_F2, KC_F3, KC_F4,
-        KC_NUM_LOCK, XXXXXXX, XXXXXXX, KC_CAPS_LOCK, XXXXXXX, _______
+        KC_INS, CC_RGB_WHITE, RGB_VAI, KC_VOLU, XXXXXXX, KC_SCRL, KC_F9, KC_F10, KC_F11, KC_F12,
+        XXXXXXX, CC_RGB_RAINBOW, CC_RGB_LAYER, KC_MPLY, XXXXXXX, XXXXXXX, KC_F5, KC_F6, KC_F7, KC_F8,
+        XXXXXXX, XXXXXXX, RGB_VAD, KC_VOLD, XXXXXXX, XXXXXXX, KC_F1, KC_F2, KC_F3, KC_F4,
+        _______, XXXXXXX, KC_NUM_LOCK, KC_CAPS_LOCK, XXXXXXX, _______
     ),
     [LAYER_NAV] = LAYOUT_split_3x5_3(
         KC_LALT, KC_HOME, KC_UP, KC_END, KC_ESC, LCA(KC_5), KC_7, KC_8, KC_9, KC_DOT,
@@ -179,7 +181,7 @@ const uint32_t PROGMEM rgbmaps[MAX_LAYER][MATRIX_ROWS][MATRIX_COLS] = {
         OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO,
         OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO,
         OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO,
-        XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO
+        XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, XXXXXXXX
     ),
     [LAYER_GAME] = LAYOUT_split_3x5_3(
         XXXXXXXX, XXXXXXXX, OOOOOOOO, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX,
@@ -206,10 +208,10 @@ const uint32_t PROGMEM rgbmaps[MAX_LAYER][MATRIX_ROWS][MATRIX_COLS] = {
         XXXXXXXX, ________, ________, ________, ________, XXXXXXXX
     ),
     [LAYER_SET] = LAYOUT_split_3x5_3(
-        XXXXXXXX, XXXXXXXX, 0xffffff, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX,
-        XXXXXXXX, 0xff17ce, 0xffffff, 0x81f1ff, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX,
-        XXXXXXXX, XXXXXXXX, 0x666666, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX,
-        0xffc111, 0x4f4dff, XXXXXXXX, 0xffc111, 0x4f4dff, XXXXXXXX
+        XXXXXXXX, 0xffffff, 0xffffff, 0x7aff66, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX,
+        XXXXXXXX, 0xff17ce, 0x81f1ff, 0x54af47, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX,
+        XXXXXXXX, XXXXXXXX, 0x666666, 0x38752f, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX,
+        XXXXXXXX, XXXXXXXX, 0xffc111, 0xffc111, XXXXXXXX, XXXXXXXX
     ),
     [LAYER_NAV] = LAYOUT_split_3x5_3(
         0xffd14f, XXXXXXXX, OOOOOOOO, XXXXXXXX, 0x81f1ff, XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, XXXXXXXX,
@@ -263,8 +265,6 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
             case 0: // Left-half encoder
                 break;
             case 1: // Right-half encoder
-                layer_clear();
-                tap_code16(clockwise ? KC_MNXT : KC_MPRV);
                 break;
         }
     } else {
@@ -272,7 +272,6 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
             case 0: // Left-half encoder
                 break;
             case 1: // Right-half encoder
-                tap_code16(clockwise ? KC_AUDIO_VOL_UP : KC_AUDIO_VOL_DOWN);
                 break;
         }
     }
@@ -326,9 +325,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (layer_enabled(LAYER_MODS) && keycode != CC_LTG_SYM && pressed && releaseBeforePress) {
         layer_off(LAYER_MODS);
     }
-    if (layer_enabled(LAYER_SET) && !pressed && row % 4 == 3) {
-        layer_off(LAYER_SET);
-    }
 
     // OSM
     bool osm_handled = !x_osm(keycode, pressed, record->event.time, KC_ESC);
@@ -337,7 +333,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     // Turning layers on
     if (pressed && keycode == CC_LTG_SYM) {
-        if (layer_mask_enabled_any(LAYER_SYM_MASK)) {
+        if (layer_mask_enabled_all(LAYER_SYM_MASK)) {
             x_osm_clear();
             layer_and(~LAYER_SYM_MASK);
         }
@@ -347,10 +343,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (pressed && keycode == CC_LTG_NAV) {
         if (layer_enabled(LAYER_NAV)) layer_and(~(1 << LAYER_NAV));
         else layer_or(1 << LAYER_NAV);
-        return false;
-    }
-    if (pressed && keycode == CC_LTG_SET) {
-        layer_move(LAYER_SET);
         return false;
     }
 
@@ -371,9 +363,9 @@ uint32_t x_rgb_get_override_color_user(led_data* data) {
     led_t state = host_keyboard_led_state();
     uint8_t mods = get_oneshot_mods() | get_oneshot_locked_mods() | get_mods();
 
-    if (data->row == 7 && data->col == 1 && (mods & MOD_MASK_SHIFT) != 0) return 0xffc111;
-    if (data->row == 3 && data->col == 2 && !state.num_lock) return 0xff9e12;
+    if (data->row == 6 && data->col == 0 && !state.num_lock) return 0xff9e12;
     if (data->row == 7 && data->col == 1 && (state.caps_lock || is_caps_word_on())) return 0xff9e12;
+    if (data->row == 7 && data->col == 1 && (mods & MOD_MASK_SHIFT) != 0) return 0xffc111;
 
     if (layer_enabled(LAYER_MODS) || layer_state == 0) {
         if (data->row == 3 && data->col == 1 && (mods & MOD_MASK_CTRL) != 0) return 0xffc111;
@@ -387,9 +379,6 @@ uint32_t x_rgb_get_override_color_user(led_data* data) {
         if (data->row == 1 && data->col == 2 && (mods & MOD_MASK_SHIFT) != 0) return 0xffc111;
         if (data->row == 1 && data->col == 3 && (mods & MOD_MASK_CTRL) != 0) return 0xffc111;
     }
-
-    if (data->row == 3 && data->col == 2 && !state.num_lock) return 0xff9e12;
-    if (data->row == 7 && data->col == 1 && (state.caps_lock || is_caps_word_on())) return 0xff9e12;
 
     return ________;
 }
