@@ -34,21 +34,21 @@ void keyboard_post_init_user(void) {
     transaction_register_rpc(GET_POINTER_IS_DOWN, get_pointer_is_down_handler);
 }
 
-bool layer_enabled(uint8_t layer) {
+bool layer_enabled(layer_state_t layer) {
     // (base layer mask | additional layer masks) & requested layer mask
     // base layer might be unset, in which case it defaults to 00000001 aka 0th layer.
     return (((default_layer_state == 0 ? 1 : default_layer_state) | layer_state) & ((layer_state_t)1 << layer)) != 0;
 }
 
-bool layer_mask_enabled_any(uint8_t layer_mask) {
+bool layer_mask_enabled_any(layer_state_t layer_mask) {
     return (((default_layer_state == 0 ? 1 : default_layer_state) | layer_state) & layer_mask) != 0;
 }
 
-bool layer_mask_enabled_all(uint8_t layer_mask) {
+bool layer_mask_enabled_all(layer_state_t layer_mask) {
     return (((default_layer_state == 0 ? 1 : default_layer_state) | layer_state) & layer_mask) == layer_mask;
 }
 
-bool any_layer_enabled(uint8_t layer1, uint8_t layer2) {
+bool any_layer_enabled(layer_state_t layer1, layer_state_t layer2) {
     return layer_enabled(layer1) || layer_enabled(layer2);
 }
 
@@ -128,7 +128,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_TAB, KC_Q, KC_W, KC_E, KC_R, KC_Y, KC_U, KC_I, KC_O, KC_P,
         KC_LSFT, KC_A, KC_S, KC_D, KC_F, KC_H, KC_J, KC_K, KC_L, KC_SEMICOLON,
         KC_LCTL, KC_Z, KC_X, KC_C, KC_V, KC_N, KC_M, KC_COMMA, KC_DOT, KC_SLASH,
-        XXXXXXX, KC_SPACE, CC_LTG_SYM, KC_ESC, KC_SPACE, OSL(LAYER_SET)
+        KC_ESC, KC_SPACE, CC_LTG_SYM, XXXXXXX, KC_SPACE, OSL(LAYER_SET)
     ),
     [LAYER_NAV_BAR] = LAYOUT_split_3x5_3(
         KC_ESC, _______, _______, _______, _______, _______, _______, _______, _______, _______,
