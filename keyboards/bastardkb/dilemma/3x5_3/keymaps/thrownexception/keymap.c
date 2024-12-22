@@ -57,8 +57,6 @@ enum dilemma_keymap_layers {
     LAYER_CLMKDH = 0,
     LAYER_GAME,
     LAYER_SYMBOLS,
-    LAYER_NAV_BAR,
-    LAYER_MODS,
     LAYER_SET,
     LAYER_NAV,
     LAYER_MOUSE
@@ -74,12 +72,12 @@ enum keys {
 };
 
 const int LAYER_ALPHA_MASK = (1 << LAYER_CLMKDH);
-const int LAYER_SYM_MASK = (1 << LAYER_SYMBOLS) | (1 << LAYER_NAV_BAR) | (1 << LAYER_MODS);
 
 // ===== KEY OVERRIDES =====
 const key_override_t shift_comma_parenthesis_open = {.layers = LAYER_ALPHA_MASK, .trigger_mods = MOD_MASK_SHIFT, .negative_mod_mask = (uint8_t) ~MOD_MASK_SHIFT, .trigger = KC_COMMA, .suppressed_mods = (uint8_t) 0, .replacement = KC_9, .options = ko_options_default, .custom_action = NULL, .context = NULL, .enabled = NULL };
 const key_override_t shift_dot_parenthesis_close = {.layers = LAYER_ALPHA_MASK, .trigger_mods = MOD_MASK_SHIFT, .negative_mod_mask = (uint8_t) ~MOD_MASK_SHIFT, .trigger = KC_DOT, .suppressed_mods = (uint8_t) 0, .replacement = KC_0, .options = ko_options_default, .custom_action = NULL, .context = NULL, .enabled = NULL };
 const key_override_t shift_quote_colon = {.layers = LAYER_ALPHA_MASK, .trigger_mods = MOD_MASK_SHIFT, .negative_mod_mask = (uint8_t) ~MOD_MASK_SHIFT, .trigger = KC_QUOTE, .suppressed_mods = (uint8_t) 0, .replacement = KC_SEMICOLON, .options = ko_options_default, .custom_action = NULL, .context = NULL, .enabled = NULL };
+const key_override_t shift_question_exclamation = {.layers = LAYER_ALPHA_MASK, .trigger_mods = MOD_MASK_SHIFT, .negative_mod_mask = (uint8_t) ~MOD_MASK_SHIFT, .trigger = LSFT(KC_SLASH), .suppressed_mods = (uint8_t) 0, .replacement = KC_1, .options = ko_options_default, .custom_action = NULL, .context = NULL, .enabled = NULL };
 
 const key_override_t shift_lock_sleep = {.layers = (1 << LAYER_SYMBOLS), .trigger_mods = MOD_MASK_SHIFT, .negative_mod_mask = (uint8_t) ~MOD_MASK_SHIFT, .trigger = LGUI(KC_L), .suppressed_mods = (uint8_t) MOD_MASK_SHIFT, .replacement = KC_SLEP, .options = ko_options_default, .custom_action = NULL, .context = NULL, .enabled = NULL };
 
@@ -89,27 +87,46 @@ const key_override_t shift_dot_colon = {.layers = (1 << LAYER_NAV), .trigger_mod
 const key_override_t shift_zero_minus = {.layers = (1 << LAYER_NAV), .trigger_mods = MOD_MASK_SHIFT, .negative_mod_mask = (uint8_t) ~MOD_MASK_SHIFT, .trigger = KC_0, .suppressed_mods = (uint8_t) MOD_MASK_SHIFT, .replacement = KC_MINUS, .options = ko_options_default, .custom_action = NULL, .context = NULL, .enabled = NULL };
 
 const key_override_t **key_overrides = (const key_override_t *[]) {
-    &shift_comma_parenthesis_open, &shift_dot_parenthesis_close, &shift_quote_colon, &shift_lock_sleep, &shift_six_dash, &shift_nine_comma, &shift_dot_colon, &shift_zero_minus, NULL
+    &shift_comma_parenthesis_open, &shift_dot_parenthesis_close, &shift_quote_colon, &shift_question_exclamation, &shift_lock_sleep, &shift_six_dash, &shift_nine_comma, &shift_dot_colon, &shift_zero_minus, NULL
 };
 
 // ====================== COMBOS ===========================
 enum combos {
-    COMBO_CAPS_WORD,
+    COMBO_LTG_NAV,
+    COMBO_CTL,
+    COMBO_ALT,
+    COMBO_GUI,
     COMBO_ENTER,
+    COMBO_TAB,
+    COMBO_CAPS_WORD,
+    COMBO_DELETE,
+    COMBO_ESC,
     COMBO_LENGTH
 };
 uint16_t COMBO_LEN = COMBO_LENGTH;
-const uint16_t PROGMEM combo_keys_caps_word[] = {CC_LTG_SYM, OSM(MOD_LSFT), COMBO_END};
-const uint16_t PROGMEM combo_keys_enter[] = {KC_BACKSPACE, KC_SPACE, COMBO_END};
+const uint16_t PROGMEM combo_keys_ltg_nav[] = {KC_BACKSPACE, KC_SPACE, COMBO_END};
+const uint16_t PROGMEM combo_keys_ctl[] = {KC_BACKSPACE, OSM(MOD_LSFT), COMBO_END};
+const uint16_t PROGMEM combo_keys_alt[] = {KC_BACKSPACE, OSM(MOD_LSFT), CC_LTG_SYM, COMBO_END};
+const uint16_t PROGMEM combo_keys_gui[] = {KC_BACKSPACE, CC_LTG_SYM, COMBO_END};
+const uint16_t PROGMEM combo_keys_enter[] = {OSM(MOD_LSFT), KC_SPACE, COMBO_END};
+const uint16_t PROGMEM combo_keys_tab[] = {CC_LTG_SYM, KC_SPACE, COMBO_END};
+const uint16_t PROGMEM combo_keys_caps_word[] = {OSM(MOD_LSFT), CC_LTG_SYM, KC_SPACE, COMBO_END};
+const uint16_t PROGMEM combo_keys_delete[] = {OSM(MOD_LSFT), CC_LTG_SYM, COMBO_END};
+const uint16_t PROGMEM combo_keys_esc[] = {KC_BACKSPACE, OSM(MOD_LSFT), CC_LTG_SYM, KC_SPACE, COMBO_END};
 combo_t key_combos[] = {
-    [COMBO_CAPS_WORD] = COMBO(combo_keys_caps_word, CC_CAPS_WORD),
+    [COMBO_LTG_NAV] = COMBO(combo_keys_ltg_nav, CC_LTG_NAV),
+    [COMBO_CTL] = COMBO(combo_keys_ctl, OSM(MOD_LCTL)),
+    [COMBO_ALT] = COMBO(combo_keys_alt, OSM(MOD_LALT)),
+    [COMBO_GUI] = COMBO(combo_keys_gui, OSM(MOD_LGUI)),
     [COMBO_ENTER] = COMBO(combo_keys_enter, KC_ENTER),
+    [COMBO_TAB] = COMBO(combo_keys_tab, KC_TAB),
+    [COMBO_CAPS_WORD] = COMBO(combo_keys_caps_word, CC_CAPS_WORD),
+    [COMBO_DELETE] = COMBO(combo_keys_delete, KC_DEL),
+    [COMBO_ESC] = COMBO(combo_keys_esc, KC_ESC),
 };
 
 bool combo_should_trigger(uint16_t combo_index, combo_t *combo, uint16_t keycode, keyrecord_t *record) {
     switch (combo_index) {
-        case COMBO_CAPS_WORD: return layer_state == 0;
-        case COMBO_ENTER: return !layer_enabled(LAYER_MODS);
         default: return true;
     }
 }
@@ -119,45 +136,33 @@ bool combo_should_trigger(uint16_t combo_index, combo_t *combo, uint16_t keycode
 // clang-format off
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [LAYER_CLMKDH] = LAYOUT_split_3x5_3(
-        KC_Q, KC_W, KC_F, KC_P, KC_B, KC_J, KC_L, KC_U, KC_Y, KC_QUOTE,
+        KC_Q, KC_W, KC_F, KC_P, KC_B, KC_J, KC_L, KC_U, KC_Y, LSFT(KC_SLASH),
         KC_A, KC_R, KC_S, KC_T, KC_G, KC_M, KC_N, KC_E, KC_I, KC_O,
-        KC_Z, KC_X, KC_C, KC_D, KC_V, KC_K, KC_H, KC_COMMA, KC_DOT, CC_LTG_NAV,
-        XXXXXXX, KC_SPACE, CC_LTG_SYM, OSM(MOD_LSFT), KC_BACKSPACE, OSL(LAYER_SET)
+        KC_Z, KC_X, KC_C, KC_D, KC_V, KC_K, KC_H, KC_COMMA, KC_DOT, KC_QUOTE,
+        XXXXXXX, KC_BACKSPACE, OSM(MOD_LSFT), CC_LTG_SYM, KC_SPACE, OSL(LAYER_SET)
     ),
     [LAYER_GAME] = LAYOUT_split_3x5_3(
         KC_TAB, KC_Q, KC_W, KC_E, KC_R, KC_Y, KC_U, KC_I, KC_O, KC_P,
         KC_LSFT, KC_A, KC_S, KC_D, KC_F, KC_H, KC_J, KC_K, KC_L, KC_SEMICOLON,
         KC_LCTL, KC_Z, KC_X, KC_C, KC_V, KC_N, KC_M, KC_COMMA, KC_DOT, KC_SLASH,
-        KC_ESC, KC_SPACE, CC_LTG_SYM, XXXXXXX, KC_SPACE, OSL(LAYER_SET)
-    ),
-    [LAYER_NAV_BAR] = LAYOUT_split_3x5_3(
-        KC_ESC, _______, _______, _______, _______, _______, _______, _______, _______, _______,
-        KC_TAB, _______, _______, _______, _______, _______, _______, _______, _______, _______,
-        KC_DEL, _______, _______, _______, _______, _______, _______, _______, _______, _______,
-        _______, _______, _______, _______, _______, _______
-    ),
-    [LAYER_MODS] = LAYOUT_split_3x5_3(
-        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
-        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
-        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
-        _______, KC_ENTER, OSM(MOD_LCTL), OSM(MOD_LSFT), OSM(MOD_LALT), _______
+        KC_ESC, KC_SPACE, XXXXXXX, CC_LTG_SYM, KC_SPACE, OSL(LAYER_SET)
     ),
     [LAYER_SYMBOLS] = LAYOUT_split_3x5_3(
-        _______, LSFT(KC_BACKSLASH), LSFT(KC_7), LSFT(KC_GRAVE), LSFT(KC_6), KC_PSCR, LSFT(KC_MINUS), KC_SLASH, KC_BACKSLASH, LSFT(KC_SLASH),
-        _______, LSFT(KC_8), KC_SEMICOLON, LSFT(KC_QUOTE), LSFT(KC_4), LSFT(KC_2), KC_MINUS, LSFT(KC_LEFT_BRACKET), LSFT(KC_COMMA), KC_LEFT_BRACKET,
-        _______, LSFT(KC_3), LSFT(KC_EQUAL), KC_GRAVE, OSM(MOD_LGUI), LSFT(KC_1), KC_EQUAL, LSFT(KC_RIGHT_BRACKET), LSFT(KC_DOT), KC_RIGHT_BRACKET,
-        LGUI(KC_L), KC_SPACE, _______, _______, _______, CC_TOGGLE_BASE
+        XXXXXXX, LSFT(KC_BACKSLASH), LSFT(KC_7), LSFT(KC_GRAVE), LSFT(KC_6), KC_PSCR, LSFT(KC_MINUS), KC_SLASH, KC_BACKSLASH, XXXXXXX,
+        XXXXXXX, LSFT(KC_8), KC_SEMICOLON, LSFT(KC_QUOTE), LSFT(KC_4), LSFT(KC_2), KC_MINUS, LSFT(KC_LEFT_BRACKET), LSFT(KC_COMMA), KC_LEFT_BRACKET,
+        XXXXXXX, LSFT(KC_3), LSFT(KC_EQUAL), KC_GRAVE, XXXXXXX, XXXXXXX, KC_EQUAL, LSFT(KC_RIGHT_BRACKET), LSFT(KC_DOT), KC_RIGHT_BRACKET,
+        LGUI(KC_L), _______, _______, _______, _______, CC_TOGGLE_BASE
     ),
     [LAYER_SET] = LAYOUT_split_3x5_3(
         KC_INS, CC_RGB_WHITE, RGB_VAI, KC_VOLU, XXXXXXX, KC_SCRL, KC_F9, KC_F10, KC_F11, KC_F12,
         XXXXXXX, CC_RGB_RAINBOW, CC_RGB_LAYER, KC_MPLY, XXXXXXX, XXXXXXX, KC_F5, KC_F6, KC_F7, KC_F8,
         XXXXXXX, XXXXXXX, RGB_VAD, KC_VOLD, XXXXXXX, XXXXXXX, KC_F1, KC_F2, KC_F3, KC_F4,
-        _______, XXXXXXX, KC_NUM_LOCK, KC_CAPS_LOCK, XXXXXXX, _______
+        _______, XXXXXXX, KC_CAPS_LOCK, KC_NUM_LOCK, XXXXXXX, _______
     ),
     [LAYER_NAV] = LAYOUT_split_3x5_3(
         KC_LALT, KC_HOME, KC_UP, KC_END, KC_ESC, LCA(KC_5), KC_7, KC_8, KC_9, KC_DOT,
         KC_LSFT, KC_LEFT, KC_DOWN, KC_RIGHT, KC_TAB, LSFT(KC_4), KC_4, KC_5, KC_6, KC_0,
-        KC_LCTL, LCTL(KC_X), LCTL(KC_C), LCTL(KC_V), KC_DEL, LSFT(KC_5), KC_1, KC_2, KC_3, CC_LTG_NAV,
+        KC_LCTL, LCTL(KC_X), LCTL(KC_C), LCTL(KC_V), KC_DEL, LSFT(KC_5), KC_1, KC_2, KC_3, XXXXXXX,
         _______, _______, _______, _______, _______, _______
     ),
     [LAYER_MOUSE] = LAYOUT_split_3x5_3(
@@ -189,23 +194,11 @@ const uint32_t PROGMEM rgbmaps[MAX_LAYER][MATRIX_ROWS][MATRIX_COLS] = {
         XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX,
         XXXXXXXX, OOOOOOOO, XXXXXXXX, XXXXXXXX, OOOOOOOO, XXXXXXXX
     ),
-    [LAYER_NAV_BAR] = LAYOUT_split_3x5_3(
-        0x81f1ff, ________, ________, ________, ________, ________, ________, ________, ________, ________,
-        0x81f1ff, ________, ________, ________, ________, ________, ________, ________, ________, ________,
-        0x81f1ff, ________, ________, ________, ________, ________, ________, ________, ________, ________,
-        ________, ________, ________, ________, ________, ________
-    ),
-    [LAYER_MODS] = LAYOUT_split_3x5_3(
-        ________, ________, ________, ________, ________, ________, ________, ________, ________, ________,
-        ________, ________, ________, ________, ________, ________, ________, ________, ________, ________,
-        ________, ________, ________, ________, ________, ________, ________, ________, ________, ________,
-        ________, ________, 0xffd14f, 0xffd14f, 0xffd14f, ________
-    ),
     [LAYER_SYMBOLS] = LAYOUT_split_3x5_3(
-        ________, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO,
-        ________, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO,
-        ________, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO,
-        XXXXXXXX, ________, ________, ________, ________, XXXXXXXX
+        OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO,
+        OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO,
+        OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO,
+        XXXXXXXX, OOOOOOOO, OOOOOOOO, 0x4f4dff, OOOOOOOO, XXXXXXXX
     ),
     [LAYER_SET] = LAYOUT_split_3x5_3(
         XXXXXXXX, 0xffffff, 0xffffff, 0x7aff66, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX,
@@ -216,8 +209,8 @@ const uint32_t PROGMEM rgbmaps[MAX_LAYER][MATRIX_ROWS][MATRIX_COLS] = {
     [LAYER_NAV] = LAYOUT_split_3x5_3(
         0xffd14f, XXXXXXXX, OOOOOOOO, XXXXXXXX, 0x81f1ff, XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, XXXXXXXX,
         0xffd14f, OOOOOOOO, OOOOOOOO, OOOOOOOO, 0x81f1ff, XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO,
-        0xffd14f, XXXXXXXX, XXXXXXXX, XXXXXXXX, 0x81f1ff, XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, 0x4f4dff,
-        ________, ________, ________, ________, ________, XXXXXXXX
+        0xffd14f, XXXXXXXX, XXXXXXXX, XXXXXXXX, 0x81f1ff, XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, XXXXXXXX,
+        XXXXXXXX, 0x4f4dff, ________, ________, 0x4f4dff, XXXXXXXX
     ),
     [LAYER_MOUSE] = LAYOUT_split_3x5_3(
         0x666666, 0x666666, 0x666666, 0x666666, 0x666666, 0x666666, 0x666666, 0x666666, 0x666666, 0x666666,
@@ -306,43 +299,35 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
 
     // Turning layers off
-    bool releaseBeforePress = row % 4 == 3 && keycode != OSM(MOD_LSFT) && keycode != KC_BACKSPACE; // thumb buttons, except shift and backspace
-    bool releaseAfterPress = keycode == KC_ENTER;
+    bool releaseBeforePress = keycode == KC_SPACE || keycode == CC_LTG_SYM || keycode == KC_ENTER || keycode == OSM(MOD_LCTL) || keycode == OSM(MOD_LALT) || keycode == OSM(MOD_LGUI);
+    bool releaseAfterPress = false; // never
     if (layer_enabled(LAYER_NAV) && keycode != CC_LTG_NAV && ((pressed && releaseBeforePress) || (!pressed && releaseAfterPress))) {
         layer_off(LAYER_NAV);
     }
 
-    releaseBeforePress = (row == 3 && col == 1) || (row == 7 && col < 2) || (row < 3 && col == 0);
-    if (layer_enabled(LAYER_SYMBOLS) && keycode != CC_LTG_SYM && pressed == releaseBeforePress) {
+    releaseBeforePress = (row % 4 == 3 && col < 2) || keycode == CC_LTG_NAV || keycode == KC_ENTER || keycode == KC_TAB || keycode == KC_DEL || keycode == KC_ESC; // thumb buttons or some of the combos
+    releaseAfterPress = (row % 4 == 3 && col == 2) || (row < 3 && col > 0) || (row > 3 && row < 7);
+    if (layer_enabled(LAYER_SYMBOLS) && keycode != CC_LTG_SYM && ((pressed && releaseBeforePress) || (!pressed && releaseAfterPress))) {
         layer_off(LAYER_SYMBOLS);
-    }
-    releaseBeforePress = col != 0 || row >= 3; // Not in the left outer column
-    releaseAfterPress = keycode == KC_ESC;
-    if (layer_enabled(LAYER_NAV_BAR) && keycode != CC_LTG_SYM && ((pressed && releaseBeforePress) || (!pressed && releaseAfterPress))) {
-        layer_off(LAYER_NAV_BAR);
-    }
-    releaseBeforePress = !(row % 4 == 3 && col <= 1); // Not a modifier key
-    if (layer_enabled(LAYER_MODS) && keycode != CC_LTG_SYM && pressed && releaseBeforePress) {
-        layer_off(LAYER_MODS);
     }
 
     // OSM
     bool osm_handled = !x_osm(keycode, pressed, record->event.time, KC_ESC);
-    if (!pressed && layer_enabled(LAYER_MODS) && get_mods() == 0 && keycode != CC_LTG_SYM) layer_and(~LAYER_SYM_MASK);
     if (osm_handled) return false;
 
     // Turning layers on
     if (pressed && keycode == CC_LTG_SYM) {
-        if (layer_mask_enabled_all(LAYER_SYM_MASK)) {
-            x_osm_clear();
-            layer_and(~LAYER_SYM_MASK);
-        }
-        else layer_or(LAYER_SYM_MASK);
+        if (layer_enabled(LAYER_SYMBOLS)) layer_and(~(1 << LAYER_SYMBOLS));
+        else layer_or(1 << LAYER_SYMBOLS);
         return false;
     }
     if (pressed && keycode == CC_LTG_NAV) {
-        if (layer_enabled(LAYER_NAV)) layer_and(~(1 << LAYER_NAV));
-        else layer_or(1 << LAYER_NAV);
+        if (layer_enabled(LAYER_NAV)) {
+            layer_and(~(1 << LAYER_NAV));
+        } else {
+            x_osm_clear();
+            layer_or(1 << LAYER_NAV);
+        }
         return false;
     }
 
@@ -356,21 +341,18 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 uint32_t x_rgb_get_default_color_user(led_data* data) {
     if (layer_enabled(LAYER_MOUSE)) return 0x444444;
     if (layer_enabled(LAYER_NAV)) return 0x5b00cc;
-    if (layer_mask_enabled_any(LAYER_SYM_MASK)) return 0x008a74;
+    if (layer_enabled(LAYER_SYMBOLS)) return 0x008a74;
     return 0x0b0bff;
 }
 uint32_t x_rgb_get_override_color_user(led_data* data) {
     led_t state = host_keyboard_led_state();
     uint8_t mods = get_oneshot_mods() | get_oneshot_locked_mods() | get_mods();
 
-    if (data->row == 6 && data->col == 0 && !state.num_lock) return 0xff9e12;
-    if (data->row == 7 && data->col == 1 && (state.caps_lock || is_caps_word_on())) return 0xff9e12;
-    if (data->row == 7 && data->col == 1 && (mods & MOD_MASK_SHIFT) != 0) return 0xffc111;
+    if (data->row == 7 && data->col == 1 && !state.num_lock) return 0xff9e12;
+    if (data->row == 3 && data->col == 1 && (state.caps_lock || is_caps_word_on())) return 0xff9e12;
+    if (data->row == 3 && data->col == 1 && (mods & MOD_MASK_SHIFT) != 0) return 0xffc111;
 
-    if (layer_enabled(LAYER_MODS) || layer_state == 0) {
-        if (data->row == 3 && data->col == 1 && (mods & MOD_MASK_CTRL) != 0) return 0xffc111;
-        if (data->row == 7 && data->col == 0 && (mods & MOD_MASK_ALT) != 0) return 0xffc111;
-    } else if (layer_enabled(LAYER_NAV)) {
+    if (layer_enabled(LAYER_NAV)) {
         if (data->row == 0 && data->col == 0 && (mods & MOD_MASK_ALT) != 0) return 0xffc111;
         if (data->row == 1 && data->col == 0 && (mods & MOD_MASK_SHIFT) != 0) return 0xffc111;
         if (data->row == 2 && data->col == 0 && (mods & MOD_MASK_CTRL) != 0) return 0xffc111;
@@ -378,6 +360,10 @@ uint32_t x_rgb_get_override_color_user(led_data* data) {
         if (data->row == 1 && data->col == 1 && (mods & MOD_MASK_ALT) != 0) return 0xffc111;
         if (data->row == 1 && data->col == 2 && (mods & MOD_MASK_SHIFT) != 0) return 0xffc111;
         if (data->row == 1 && data->col == 3 && (mods & MOD_MASK_CTRL) != 0) return 0xffc111;
+    } else {
+        if (data->row == 3 && data->col == 0 && (mods & MOD_MASK_CTRL) != 0) return 0xffc111;
+        if (data->row == 7 && data->col == 0 && (mods & MOD_MASK_ALT) != 0) return 0xffc111;
+        if (data->row == 7 && data->col == 1 && (mods & MOD_MASK_GUI) != 0) return 0xffc111;
     }
 
     return ________;
