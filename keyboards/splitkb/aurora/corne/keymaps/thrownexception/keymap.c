@@ -85,10 +85,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, _______, _______, _______, _______, _______
     ),
     [_SET] = LAYOUT_split_3x6_3(
-        XXXXXXX, XXXXXXX, QK_RGB_MATRIX_HUE_UP, QK_RGB_MATRIX_SATURATION_UP, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-        XXXXXXX, QK_RGB_MATRIX_MODE_NEXT, QK_RGB_MATRIX_HUE_DOWN, QK_RGB_MATRIX_SATURATION_DOWN, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, TG(_SET)
+        XXXXXXX, KC_INS, XXXXXXX, QK_RGB_MATRIX_VALUE_UP, KC_VOLU, XXXXXXX, XXXXXXX, KC_F9, KC_F10, KC_F11, KC_F12, XXXXXXX,
+        XXXXXXX, C(S(QK_MAKE)), XXXXXXX, XXXXXXX, KC_MPLY, XXXXXXX, XXXXXXX, KC_F5, KC_F6, KC_F7, KC_F8, XXXXXXX,
+        XXXXXXX, KC_SCRL, XXXXXXX, QK_RGB_MATRIX_VALUE_DOWN, KC_VOLD, XXXXXXX, XXXXXXX, KC_F1, KC_F2, KC_F3, KC_F4, XXXXXXX,
+        XXXXXXX, XXXXXXX, KC_CAPS, KC_NUM, XXXXXXX, TG(_SET)
     )
 };
 
@@ -132,6 +132,10 @@ void post_process_record_user(uint16_t keycode, keyrecord_t *record) {
     bool shouldRelease = (row > 3) || (col == 0) || (row == 3 && col <= 4) || (row == 0 && col == 1) || (row == 0 && col == 5);
     if (layer_state_is(_SYM) && keycode != TO(_SYM) && (!pressed && shouldRelease)) {
         layer_off(_SYM);
+    }
+    bool shouldRemain = (row == 0 && col == 3) || (row == 0 && col == 4) || (row == 2 && col == 3) || (row == 2 && col == 4);
+    if (layer_state_is(_SET) && keycode != TO(_SET) && (!pressed && !shouldRemain)) {
+        layer_off(_SET);
     }
 }
 

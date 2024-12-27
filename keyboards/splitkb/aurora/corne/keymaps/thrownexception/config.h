@@ -1,3 +1,7 @@
+#pragma once
+
+#define ENABLE_COMPILE_KEYCODE
+
 #define ONESHOT_TAP_TOGGLE 5
 #define ONESHOT_TIMEOUT 600000
 
