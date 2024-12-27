@@ -4,9 +4,12 @@
 #endif
 #include "gpio.h"
 
+#include "x_rgb.h"
+
 void keyboard_pre_init_user(void) {
     gpio_set_pin_output(24); // Disable the power LED
     gpio_write_pin_high(24);
+    x_rgb_set_layer();
 }
 
 enum layer_names {
@@ -14,6 +17,13 @@ enum layer_names {
     _SYM,
     _NUM,
     _SET,
+};
+
+enum custom_keycodes {
+    CKC_FLASH = SAFE_RANGE,
+    CKC_RGB_WHITE,
+    CKC_RGB_CYCLE,
+    CKC_RGB_LAYER,
 };
 
 const key_override_t sft_comma_parenthesis_override = ko_make_basic(MOD_MASK_SHIFT, KC_COMMA, S(KC_9));
@@ -85,15 +95,39 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, _______, _______, _______, _______, _______
     ),
     [_SET] = LAYOUT_split_3x6_3(
-        XXXXXXX, KC_INS, XXXXXXX, QK_RGB_MATRIX_VALUE_UP, KC_VOLU, XXXXXXX, XXXXXXX, KC_F9, KC_F10, KC_F11, KC_F12, XXXXXXX,
-        XXXXXXX, C(S(QK_MAKE)), XXXXXXX, XXXXXXX, KC_MPLY, XXXXXXX, XXXXXXX, KC_F5, KC_F6, KC_F7, KC_F8, XXXXXXX,
+        XXXXXXX, KC_INS, CKC_RGB_WHITE, QK_RGB_MATRIX_VALUE_UP, KC_VOLU, XXXXXXX, XXXXXXX, KC_F9, KC_F10, KC_F11, KC_F12, XXXXXXX,
+        XXXXXXX, CKC_FLASH, CKC_RGB_CYCLE, CKC_RGB_LAYER, KC_MPLY, XXXXXXX, XXXXXXX, KC_F5, KC_F6, KC_F7, KC_F8, XXXXXXX,
         XXXXXXX, KC_SCRL, XXXXXXX, QK_RGB_MATRIX_VALUE_DOWN, KC_VOLD, XXXXXXX, XXXXXXX, KC_F1, KC_F2, KC_F3, KC_F4, XXXXXXX,
         XXXXXXX, XXXXXXX, KC_CAPS, KC_NUM, XXXXXXX, TG(_SET)
     )
 };
 
-//TODO fix RGB
-//TODO settings layer
+const uint32_t PROGMEM rgbmaps[MAX_LAYER][MATRIX_ROWS][MATRIX_COLS] = {
+    [_BASE] = LAYOUT_split_3x6_3(
+        OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO,
+        OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO,
+        OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO,
+        XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, XXXXXXXX
+    ),
+    [_SYM] = LAYOUT_split_3x6_3(
+        XXXXXXXX, XXXXXXXX, XXXXXXXX, OOOOOOOO, XXXXXXXX, XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO,
+        XXXXXXXX, XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO,
+        XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO,
+        XXXXXXXX, OOOOOOOO, OOOOOOOO, 0x4f4dff, OOOOOOOO, XXXXXXXX
+    ),
+    [_NUM] = LAYOUT_split_3x6_3(
+        XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, XXXXXXXX, XXXXXXXX,
+        XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, XXXXXXXX,
+        XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, XXXXXXXX, XXXXXXXX,
+        XXXXXXXX, OOOOOOOO, OOOOOOOO, 0x4f4dff, 0x4f4dff, XXXXXXXX
+    ),
+    [_SET] = LAYOUT_split_3x6_3(
+        XXXXXXXX, XXXXXXXX, 0xffffff, 0xffffff, 0x7aff66, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX,
+        XXXXXXXX, XXXXXXXX, 0xff17ce, 0x81f1ff, 0x54af47, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX,
+        XXXXXXXX, XXXXXXXX, XXXXXXXX, 0x666666, 0x38752f, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX,
+        XXXXXXXX, XXXXXXXX, 0xffc111, 0xffc111, XXXXXXXX, 0x4f4dff
+    )
+};
 
 bool caps_word_press_user(uint16_t keycode) {
     switch (keycode) {
@@ -117,6 +151,24 @@ bool caps_word_press_user(uint16_t keycode) {
 // The thumb keys (outer->inner) have indexes 3->5.
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     bool pressed = record->event.pressed;
+
+    if (keycode == CKC_FLASH && pressed) {
+        send_string("qmk flash\n");
+        reset_keyboard();
+        return false;
+    }
+    if (keycode == CKC_RGB_WHITE && pressed) {
+        x_rgb_set_white();
+        return false;
+    }
+    if (keycode == CKC_RGB_CYCLE && pressed) {
+        x_rgb_set_cycle_left_right();
+        return false;
+    }
+    if (keycode == CKC_RGB_LAYER && pressed) {
+        x_rgb_set_layer();
+        return false;
+    }
 
     if (layer_state_is(_NUM) && pressed && keycode == TO(_NUM)) {
         layer_off(_NUM);
