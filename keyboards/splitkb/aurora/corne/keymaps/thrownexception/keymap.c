@@ -9,6 +9,9 @@
 void keyboard_pre_init_user(void) {
     gpio_set_pin_output(24); // Disable the power LED
     gpio_write_pin_high(24);
+}
+
+void keyboard_post_init_user(void) {
     x_rgb_set_layer();
 }
 
@@ -24,6 +27,7 @@ enum custom_keycodes {
     CKC_RGB_WHITE,
     CKC_RGB_CYCLE,
     CKC_RGB_LAYER,
+    CKC_RGB_SEND,
 };
 
 const key_override_t sft_comma_parenthesis_override = ko_make_basic(MOD_MASK_SHIFT, KC_COMMA, S(KC_9));
@@ -95,9 +99,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, _______, _______, _______, _______, _______
     ),
     [_SET] = LAYOUT_split_3x6_3(
-        XXXXXXX, KC_INS, CKC_RGB_WHITE, QK_RGB_MATRIX_VALUE_UP, KC_VOLU, XXXXXXX, XXXXXXX, KC_F9, KC_F10, KC_F11, KC_F12, XXXXXXX,
-        XXXXXXX, CKC_FLASH, CKC_RGB_CYCLE, CKC_RGB_LAYER, KC_MPLY, XXXXXXX, XXXXXXX, KC_F5, KC_F6, KC_F7, KC_F8, XXXXXXX,
-        XXXXXXX, KC_SCRL, XXXXXXX, QK_RGB_MATRIX_VALUE_DOWN, KC_VOLD, XXXXXXX, XXXXXXX, KC_F1, KC_F2, KC_F3, KC_F4, XXXXXXX,
+        XXXXXXX, RM_HUEU, RM_SATU, RM_VALU, KC_VOLU, KC_INS, XXXXXXX, KC_F9, KC_F10, KC_F11, KC_F12, XXXXXXX,
+        CKC_RGB_CYCLE, CKC_RGB_WHITE, CKC_RGB_SEND, CKC_RGB_LAYER, KC_MPLY, CKC_FLASH, XXXXXXX, KC_F5, KC_F6, KC_F7, KC_F8, XXXXXXX,
+        XXXXXXX, RM_HUED, RM_SATD, RM_VALD, KC_VOLD, KC_SCRL, XXXXXXX, KC_F1, KC_F2, KC_F3, KC_F4, XXXXXXX,
         XXXXXXX, XXXXXXX, KC_CAPS, KC_NUM, XXXXXXX, TG(_SET)
     )
 };
@@ -122,12 +126,21 @@ const uint32_t PROGMEM rgbmaps[MAX_LAYER][MATRIX_ROWS][MATRIX_COLS] = {
         XXXXXXXX, OOOOOOOO, OOOOOOOO, 0x4f4dff, 0x4f4dff, XXXXXXXX
     ),
     [_SET] = LAYOUT_split_3x6_3(
-        XXXXXXXX, XXXXXXXX, 0xffffff, 0xffffff, 0x7aff66, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX,
-        XXXXXXXX, XXXXXXXX, 0xff17ce, 0x81f1ff, 0x54af47, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX,
-        XXXXXXXX, XXXXXXXX, XXXXXXXX, 0x666666, 0x38752f, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX,
+        XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, 0x16ff0f, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX,
+        0xfc00ff, OOOOOOOO, OOOOOOOO, 0x81f1ff, 0x12cf0c, 0xff1800, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX,
+        XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, 0x0e9f09, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX,
         XXXXXXXX, XXXXXXXX, 0xffc111, 0xffc111, XXXXXXXX, 0x4f4dff
     )
 };
+
+uint32_t x_rgb_get_default_color_user(led_data* data) {
+    if (layer_state_is(_SYM)) return 0x4a00df;
+    if (layer_state_is(_NUM)) return 0x00df8d;
+    if (layer_state_is(_SET)) return 0xdfbd00;
+    return 0x0020df;
+}
+
+// TODO indicators
 
 bool caps_word_press_user(uint16_t keycode) {
     switch (keycode) {
@@ -152,22 +165,24 @@ bool caps_word_press_user(uint16_t keycode) {
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     bool pressed = record->event.pressed;
 
-    if (keycode == CKC_FLASH && pressed) {
-        send_string("qmk flash\n");
-        reset_keyboard();
-        return false;
-    }
-    if (keycode == CKC_RGB_WHITE && pressed) {
-        x_rgb_set_white();
-        return false;
-    }
-    if (keycode == CKC_RGB_CYCLE && pressed) {
-        x_rgb_set_cycle_left_right();
-        return false;
-    }
-    if (keycode == CKC_RGB_LAYER && pressed) {
-        x_rgb_set_layer();
-        return false;
+    if (pressed) {
+        if (keycode == CKC_FLASH) {
+            send_string("qmk flash\n");
+            reset_keyboard();
+            return false;
+        } else if (keycode == CKC_RGB_WHITE) {
+            x_rgb_set_white();
+            return false;
+        } else if (keycode == CKC_RGB_CYCLE) {
+            x_rgb_set_cycle_left_right();
+            return false;
+        } else if (keycode == CKC_RGB_LAYER) {
+            x_rgb_set_layer();
+            return false;
+        } else if (keycode == CKC_RGB_SEND) {
+            x_rgb_send();
+            return false;
+        }
     }
 
     if (layer_state_is(_NUM) && pressed && keycode == TO(_NUM)) {
@@ -176,6 +191,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
     return true;
 }
+
 void post_process_record_user(uint16_t keycode, keyrecord_t *record) {
     uint8_t row = record->event.key.row;
     uint8_t col = record->event.key.col;
@@ -185,8 +201,12 @@ void post_process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (layer_state_is(_SYM) && keycode != TO(_SYM) && (!pressed && shouldRelease)) {
         layer_off(_SYM);
     }
-    bool shouldRemain = (row == 0 && col == 3) || (row == 0 && col == 4) || (row == 2 && col == 3) || (row == 2 && col == 4);
-    if (layer_state_is(_SET) && keycode != TO(_SET) && (!pressed && !shouldRemain)) {
+    shouldRelease = (col == 0) || (row == 7 && col == 4);
+    if (layer_state_is(_NUM) && keycode != TO(_NUM) && (!pressed && shouldRelease)) {
+        layer_off(_NUM);
+    }
+    shouldRelease = (row > 3) || (col == 5) || (row == 1 && col == 4);
+    if (layer_state_is(_SET) && keycode != TO(_SET) && (!pressed && shouldRelease)) {
         layer_off(_SET);
     }
 }
