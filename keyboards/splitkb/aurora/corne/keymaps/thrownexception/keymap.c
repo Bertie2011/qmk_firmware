@@ -5,6 +5,7 @@
 #include "gpio.h"
 
 #include "x_rgb.h"
+#include "x_osm.h"
 
 void keyboard_pre_init_user(void) {
     gpio_set_pin_output(24); // Disable the power LED
@@ -36,14 +37,15 @@ const key_override_t sft_del_prnt_override = ko_make_basic(MOD_MASK_SHIFT, KC_DE
 const key_override_t sft_esc_lock_override = ko_make_basic(MOD_MASK_SHIFT, KC_ESC, G(KC_L));
 const key_override_t sft_asterisk_at_override = ko_make_basic(MOD_MASK_SHIFT, S(KC_8), S(KC_2));
 const key_override_t sft_question_exclamation_override = ko_make_basic(MOD_MASK_SHIFT, S(KC_SLASH), S(KC_1));
-const key_override_t ctl_del_capsword_override = ko_make_basic(MOD_MASK_CTRL, KC_DEL, CW_TOGG);
 const key_override_t ctl_esc_sleep_override = ko_make_basic(MOD_MASK_CTRL, KC_ESC, KC_SLEP);
 const key_override_t sft_cd_ca_override = ko_make_with_layers(MOD_MASK_SHIFT, C(KC_D), C(KC_A), 1 << _SYM);
 const key_override_t sft_cv_gv_override = ko_make_with_layers(MOD_MASK_SHIFT, C(KC_V), G(KC_V), (1 << _SYM)|(1 << _NUM));
 const key_override_t sft_f2_f5_override = ko_make_basic(MOD_MASK_SHIFT, KC_F2, KC_F5);
 const key_override_t sft_caret_tilde_override = ko_make_basic(MOD_MASK_SHIFT, S(KC_6), S(KC_GRAVE));
 const key_override_t sft_dollar_percent_override = ko_make_basic(MOD_MASK_SHIFT, S(KC_4), S(KC_5));
-const key_override_t ctl_dollar_euro_override = ko_make_basic(MOD_MASK_CTRL, S(KC_4), A(C(KC_5)));
+const key_override_t sft_brace_invert_override = ko_make_basic(MOD_MASK_SHIFT, S(KC_LEFT_BRACKET), S(KC_RIGHT_BRACKET));
+const key_override_t sft_angle_bracket_invert_override = ko_make_basic(MOD_MASK_SHIFT, S(KC_COMMA), S(KC_DOT));
+const key_override_t sft_bracket_invert_override = ko_make_basic(MOD_MASK_SHIFT, KC_LEFT_BRACKET, KC_RIGHT_BRACKET);
 const key_override_t sft_2_parenthesis_override = ko_make_with_layers(MOD_MASK_SHIFT, KC_KP_2, S(KC_9), 1 << _NUM);
 const key_override_t sft_3_parenthesis_override = ko_make_with_layers(MOD_MASK_SHIFT, KC_KP_3, S(KC_0), 1 << _NUM);
 
@@ -54,29 +56,32 @@ const key_override_t *key_overrides[] = {
     &sft_esc_lock_override,
     &sft_asterisk_at_override,
     &sft_question_exclamation_override,
-    &ctl_del_capsword_override,
     &ctl_esc_sleep_override,
     &sft_cd_ca_override,
     &sft_cv_gv_override,
     &sft_f2_f5_override,
     &sft_caret_tilde_override,
     &sft_dollar_percent_override,
-    &ctl_dollar_euro_override,
+    &sft_brace_invert_override,
+    &sft_angle_bracket_invert_override,
+    &sft_bracket_invert_override,
     &sft_2_parenthesis_override,
     &sft_3_parenthesis_override
 };
 
 const uint16_t PROGMEM ctl_combo[] = {KC_BACKSPACE, OSM(MOD_LSFT), COMBO_END};
-const uint16_t PROGMEM gui_combo[] = {OSM(MOD_LSFT), TO(_SYM), COMBO_END};
+const uint16_t PROGMEM gui_combo[] = {KC_BACKSPACE, TO(_SYM), COMBO_END};
 const uint16_t PROGMEM alt_combo[] = {OSM(MOD_LSFT), KC_SPACE, COMBO_END};
 const uint16_t PROGMEM num_combo[] = {TO(_SYM), KC_SPACE, COMBO_END};
+const uint16_t PROGMEM capsword_combo[] = {OSM(MOD_LSFT), TO(_SYM), COMBO_END};
 //TODO fix capsword
 
 combo_t key_combos[] = {
     COMBO(ctl_combo, OSM(MOD_LCTL)),
     COMBO(gui_combo, OSM(MOD_LGUI)),
     COMBO(alt_combo, OSM(MOD_LALT)),
-    COMBO(num_combo, TO(_NUM))
+    COMBO(num_combo, TO(_NUM)),
+    COMBO(capsword_combo, CW_TOGG)
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -87,9 +92,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         XXXXXXX, KC_BACKSPACE, OSM(MOD_LSFT), TO(_SYM), KC_SPACE, TO(_SET)
     ),
     [_SYM] = LAYOUT_split_3x6_3(
-        _______, KC_F2, KC_HOME, KC_UP, KC_END, KC_SLASH, KC_BACKSLASH, S(KC_EQUAL), S(KC_RIGHT_BRACKET), S(KC_DOT), KC_RIGHT_BRACKET, S(KC_4),
-        _______, C(KC_Z), KC_LEFT, KC_DOWN, KC_RIGHT, C(KC_Y), S(KC_MINUS), KC_MINUS, S(KC_LEFT_BRACKET), S(KC_COMMA), KC_LEFT_BRACKET, _______,
-        XXXXXXX, C(KC_D), C(KC_X), C(KC_C), C(KC_V), XXXXXXX, S(KC_3), KC_EQUAL, S(KC_7), S(KC_BACKSLASH), KC_GRAVE, S(KC_6),
+        _______, KC_F2, KC_HOME, KC_UP, KC_END, XXXXXXX, KC_BACKSLASH, S(KC_MINUS), S(KC_4), KC_SLASH, S(KC_3), _______,
+        _______, C(KC_Z), KC_LEFT, KC_DOWN, KC_RIGHT, C(KC_Y), S(KC_EQUAL), KC_MINUS, S(KC_LEFT_BRACKET), S(KC_COMMA), KC_LEFT_BRACKET, _______,
+        XXXXXXX, C(KC_D), C(KC_X), C(KC_C), C(KC_V), XXXXXXX, S(KC_8), KC_EQUAL, S(KC_7), S(KC_BACKSLASH), KC_GRAVE, S(KC_6),
         _______, _______, _______, TG(_SYM), _______, _______
     ),
     [_NUM] = LAYOUT_split_3x6_3(
@@ -114,14 +119,14 @@ const uint32_t PROGMEM rgbmaps[MAX_LAYER][MATRIX_ROWS][MATRIX_COLS] = {
         XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, XXXXXXXX
     ),
     [_SYM] = LAYOUT_split_3x6_3(
-        XXXXXXXX, XXXXXXXX, XXXXXXXX, OOOOOOOO, XXXXXXXX, XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO,
-        XXXXXXXX, XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO,
-        XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO,
+        XXXXXXXX, XXXXXXXX, XXXXXXXX, OOOOOOOO, XXXXXXXX, XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, XXXXXXXX,
+        XXXXXXXX, XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, XXXXXXXX,
+        XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, XXXXXXXX,
         XXXXXXXX, OOOOOOOO, OOOOOOOO, 0x4f4dff, OOOOOOOO, XXXXXXXX
     ),
     [_NUM] = LAYOUT_split_3x6_3(
         XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, XXXXXXXX, XXXXXXXX,
-        XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, XXXXXXXX,
+        XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, XXXXXXXX, XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, OOOOOOOO, XXXXXXXX,
         XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, XXXXXXXX, OOOOOOOO, OOOOOOOO, OOOOOOOO, XXXXXXXX, XXXXXXXX,
         XXXXXXXX, OOOOOOOO, OOOOOOOO, 0x4f4dff, 0x4f4dff, XXXXXXXX
     ),
@@ -134,13 +139,25 @@ const uint32_t PROGMEM rgbmaps[MAX_LAYER][MATRIX_ROWS][MATRIX_COLS] = {
 };
 
 uint32_t x_rgb_get_default_color_user(led_data* data) {
-    if (layer_state_is(_SYM)) return 0x4a00df;
-    if (layer_state_is(_NUM)) return 0x00df8d;
-    if (layer_state_is(_SET)) return 0xdfbd00;
-    return 0x0020df;
+    if (layer_state_is(_SYM)) return 0x43009f;
+    if (layer_state_is(_NUM)) return 0x009f47;
+    if (layer_state_is(_SET)) return 0x9f4b00;
+    return 0x00259f;
 }
 
-// TODO indicators
+uint32_t x_rgb_get_override_color_user(led_data* data) {
+    led_t state = host_keyboard_led_state();
+    uint8_t mods = get_oneshot_mods() | get_oneshot_locked_mods() | get_mods();
+
+    if (data->row == 7 && data->col == 5 && !state.num_lock) return 0xff9e12;
+    if (data->row == 3 && data->col == 5 && (state.caps_lock || is_caps_word_on())) return 0xff9e12;
+    if (data->row == 3 && data->col == 5 && (mods & MOD_MASK_SHIFT) != 0) return 0xffc111;
+    if (data->row == 3 && data->col == 4 && (mods & MOD_MASK_CTRL) != 0) return 0xffc111;
+    if (data->row == 7 && data->col == 4 && (mods & MOD_MASK_ALT) != 0) return 0xffc111;
+    if (data->row == 7 && data->col == 5 && (mods & MOD_MASK_GUI) != 0) return 0xffc111;
+
+    return ________;
+}
 
 bool caps_word_press_user(uint16_t keycode) {
     switch (keycode) {
@@ -164,6 +181,8 @@ bool caps_word_press_user(uint16_t keycode) {
 // The thumb keys (outer->inner) have indexes 3->5.
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     bool pressed = record->event.pressed;
+
+    if (!x_osm(keycode, pressed, record->event.time, KC_ESC)) return false;
 
     if (pressed) {
         if (keycode == CKC_FLASH) {
@@ -197,7 +216,7 @@ void post_process_record_user(uint16_t keycode, keyrecord_t *record) {
     uint8_t col = record->event.key.col;
     bool pressed = record->event.pressed;
 
-    bool shouldRelease = (row > 3) || (col == 0) || (row == 3 && col <= 4) || (row == 0 && col == 1) || (row == 0 && col == 5);
+    bool shouldRelease = (row > 3) || (col == 0) || (row == 3 && col <= 4 && keycode != OSM(MOD_LCTL)) || (row == 0 && col == 1);
     if (layer_state_is(_SYM) && keycode != TO(_SYM) && (!pressed && shouldRelease)) {
         layer_off(_SYM);
     }

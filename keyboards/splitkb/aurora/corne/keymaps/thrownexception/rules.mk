@@ -6,3 +6,4 @@ RGB_MATRIX_ENABLE = yes
 RGB_MATRIX_CUSTOM_USER = yes
 
 SRC += x_rgb.c
+SRC += x_osm.c

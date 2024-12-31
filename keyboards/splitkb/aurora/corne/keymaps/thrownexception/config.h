@@ -1,7 +1,6 @@
 #pragma once
 
-#define ONESHOT_TAP_TOGGLE 5
-#define ONESHOT_TIMEOUT 600000
+#define TAPPING_TERM 250
 
 #define COMBO_STRICT_TIMER
 #define COMBO_ONLY_FROM_LAYER 0
