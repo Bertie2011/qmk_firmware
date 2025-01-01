@@ -139,10 +139,10 @@ const uint32_t PROGMEM rgbmaps[MAX_LAYER][MATRIX_ROWS][MATRIX_COLS] = {
 };
 
 uint32_t x_rgb_get_default_color_user(led_data* data) {
-    if (layer_state_is(_SYM)) return 0x43009f;
-    if (layer_state_is(_NUM)) return 0x009f47;
-    if (layer_state_is(_SET)) return 0x9f4b00;
-    return 0x00259f;
+    if (layer_state_is(_SYM)) return 0x7300df;// -2 brightness
+    if (layer_state_is(_NUM)) return 0x00cf70; // -3 brightness
+    if (layer_state_is(_SET)) return 0xef5a00; // -1 brightness
+    return 0x0024ff; // -0 brightness
 }
 
 uint32_t x_rgb_get_override_color_user(led_data* data) {
