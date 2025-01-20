@@ -48,6 +48,7 @@ const key_override_t sft_angle_bracket_invert_override = ko_make_basic(MOD_MASK_
 const key_override_t sft_bracket_invert_override = ko_make_basic(MOD_MASK_SHIFT, KC_LEFT_BRACKET, KC_RIGHT_BRACKET);
 const key_override_t sft_2_parenthesis_override = ko_make_with_layers(MOD_MASK_SHIFT, KC_KP_2, S(KC_9), 1 << _NUM);
 const key_override_t sft_3_parenthesis_override = ko_make_with_layers(MOD_MASK_SHIFT, KC_KP_3, S(KC_0), 1 << _NUM);
+const key_override_t sft_dot_colon_override = ko_make_with_layers(MOD_MASK_SHIFT, KC_KP_DOT, S(KC_SEMICOLON), 1 << _NUM);
 
 const key_override_t *key_overrides[] = {
     &sft_comma_parenthesis_override,
@@ -66,7 +67,8 @@ const key_override_t *key_overrides[] = {
     &sft_angle_bracket_invert_override,
     &sft_bracket_invert_override,
     &sft_2_parenthesis_override,
-    &sft_3_parenthesis_override
+    &sft_3_parenthesis_override,
+    &sft_dot_colon_override
 };
 
 const uint16_t PROGMEM ctl_combo[] = {KC_BACKSPACE, OSM(MOD_LSFT), COMBO_END};
@@ -98,9 +100,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, _______, _______, TG(_SYM), _______, _______
     ),
     [_NUM] = LAYOUT_split_3x6_3(
-        _______, C(KC_R), C(KC_Q), C(KC_P), C(KC_M), XXXXXXX, A(C(KC_5)), KC_KP_7, KC_KP_8, KC_KP_9, KC_KP_DOT, S(KC_SEMICOLON),
+        _______, C(KC_R), C(KC_Q), C(KC_P), C(KC_M), XXXXXXX, A(C(KC_5)), KC_KP_7, KC_KP_8, KC_KP_9, KC_KP_DOT, _______,
         _______, KC_SLASH, KC_ASTERISK, KC_MINUS, KC_PLUS, XXXXXXX, S(KC_4), KC_KP_4, KC_KP_5, KC_KP_6, KC_KP_0, _______,
-        XXXXXXX, XXXXXXX, S(KC_6), C(KC_C), C(KC_V), XXXXXXX, S(KC_5), KC_KP_1, KC_KP_2, KC_KP_3, KC_MINUS, S(KC_MINUS),
+        XXXXXXX, XXXXXXX, S(KC_6), C(KC_C), C(KC_V), XXXXXXX, S(KC_5), KC_KP_1, KC_KP_2, KC_KP_3, KC_MINUS, XXXXXXX,
         _______, _______, _______, _______, _______, _______
     ),
     [_SET] = LAYOUT_split_3x6_3(
@@ -220,7 +222,7 @@ void post_process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (layer_state_is(_SYM) && keycode != TO(_SYM) && (!pressed && shouldRelease)) {
         layer_off(_SYM);
     }
-    shouldRelease = (col == 0) || (row == 7 && col == 4);
+    shouldRelease = (row < 3 && col == 0) || (row == 7 && col == 4);
     if (layer_state_is(_NUM) && keycode != TO(_NUM) && (!pressed && shouldRelease)) {
         layer_off(_NUM);
     }
